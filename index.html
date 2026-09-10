@@ -1,0 +1,3727 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Semestra Clientflow</title>
+<meta name="description" content="The CRM built for freelancers & small businesses — clients, tasks, communications, and financials in one place.">
+<meta name="theme-color" content="#3457D5">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon-192.png" type="image/png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Clientflow">
+<style>
+  :root{
+    --bg:#17171C;
+    --surface:#1E1E26;
+    --surface-2:#26262F;
+    --surface-3:#2D2D38;
+    --ink:#F2F0EA;
+    --ink-dim:#B9B8C2;
+    --cobalt:#4C6EF5;
+    --cobalt-soft:rgba(76,110,245,.16);
+    --chartreuse:#A3D65C;
+    --chartreuse-soft:rgba(163,214,92,.14);
+    --crimson:#E23A5D;
+    --crimson-soft:rgba(226,58,93,.14);
+    --slate:#8C8B96;
+    --border:rgba(255,255,255,.08);
+    --border-strong:rgba(255,255,255,.14);
+    --radius-lg:20px;
+    --radius-md:14px;
+    --radius-sm:10px;
+    --space-1:4px; --space-2:8px; --space-3:12px; --space-4:16px;
+    --space-5:20px; --space-6:24px; --space-7:32px; --space-8:40px;
+    --shadow-card:0 1px 2px rgba(0,0,0,.2), 0 10px 24px rgba(0,0,0,.28);
+    --shadow-modal:0 30px 80px rgba(0,0,0,.55), 0 4px 16px rgba(0,0,0,.4);
+    --shadow-dropdown:0 12px 32px rgba(0,0,0,.45), 0 2px 8px rgba(0,0,0,.3);
+    --field-bg:rgba(0,0,0,.18);
+    --field-bg-focus:rgba(0,0,0,.28);
+    --neutral-bg:rgba(255,255,255,.06);
+    --icon-bg:rgba(255,255,255,.05);
+    --avatar-ring:rgba(255,255,255,.12);
+    --chartreuse-text:var(--chartreuse);
+    --crimson-text:var(--crimson);
+    --icon-filter:invert(1);
+    font-family:'Inter',system-ui,-apple-system,sans-serif;
+  }
+  body.light-theme{
+    --bg:#F2F0EA;
+    --surface:#FFFFFF;
+    --surface-2:#F7F5F0;
+    --surface-3:#FFFFFF;
+    --ink:#17171C;
+    --ink-dim:#5A5A66;
+    --slate:#7A7986;
+    --border:rgba(23,23,28,.09);
+    --border-strong:rgba(23,23,28,.16);
+    --cobalt-soft:rgba(76,110,245,.10);
+    --chartreuse-soft:rgba(89,140,32,.12);
+    --crimson-soft:rgba(196,17,62,.10);
+    --shadow-card:0 1px 2px rgba(23,23,28,.04), 0 8px 20px rgba(23,23,28,.06);
+    --shadow-modal:0 30px 70px rgba(23,23,28,.18), 0 4px 14px rgba(23,23,28,.10);
+    --shadow-dropdown:0 12px 28px rgba(23,23,28,.14), 0 2px 8px rgba(23,23,28,.08);
+    --field-bg:rgba(23,23,28,.035);
+    --field-bg-focus:rgba(23,23,28,.05);
+    --neutral-bg:rgba(23,23,28,.06);
+    --icon-bg:rgba(23,23,28,.045);
+    --avatar-ring:rgba(23,23,28,.10);
+    --chartreuse-text:#5C8A2E;
+    --crimson-text:#C4113E;
+    --icon-filter:none;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html{ -webkit-font-smoothing:antialiased; overflow-x:hidden; }
+  html, body{ max-width:100%; }
+  body{
+    background:
+      radial-gradient(1100px 500px at 15% -10%, rgba(76,110,245,.10), transparent 60%),
+      radial-gradient(900px 500px at 100% 0%, rgba(163,214,92,.06), transparent 55%),
+      var(--bg);
+    color:var(--ink);
+    min-height:100vh;
+    padding-bottom:var(--space-8);
+    overflow-x:hidden;
+  }
+  @media (max-width:640px){
+    body{ padding-bottom:90px; } /* room for the floating FAB, mobile only */
+  }
+  .headline{font-family:'Space Grotesk','Inter',sans-serif; font-weight:700; letter-spacing:-.02em;}
+  .mono{font-family:'IBM Plex Mono',monospace;}
+
+  .top-chrome{
+    display:flex; justify-content:space-between; align-items:center;
+    padding:var(--space-6) var(--space-8) 0 var(--space-8);
+  }
+  .top-left{ display:flex; align-items:center; gap:var(--space-2); }
+  .pages-menu{ position:relative; }
+  .pages-menu-panel{
+    position:absolute; top:calc(100% + 6px); left:0; min-width:190px; z-index:60;
+    background:var(--surface-3); border:1px solid var(--border-strong); border-radius:var(--radius-sm);
+    box-shadow:var(--shadow-dropdown); padding:6px; opacity:0; transform:translateY(-4px);
+    pointer-events:none; transition:opacity .12s ease, transform .12s ease;
+  }
+  .pages-menu-panel.open{ opacity:1; transform:translateY(0); pointer-events:auto; }
+  .pages-menu-item{ padding:9px 12px; border-radius:8px; font-size:13px; cursor:pointer; color:var(--ink-dim); transition:.1s; }
+  .pages-menu-item:hover{ background:var(--cobalt-soft); color:var(--ink); }
+  .pages-menu-item.active{ color:var(--cobalt); font-weight:600; background:var(--cobalt-soft); }
+  .cmdk-trigger{
+    display:flex; align-items:center; gap:var(--space-2);
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-radius:999px;
+    padding:9px 16px 9px 14px;
+    cursor:pointer;
+    color:var(--slate);
+    font-size:13px;
+    box-shadow:var(--shadow-card);
+    transition:.18s ease;
+  }
+  .cmdk-trigger:hover{ border-color:var(--cobalt); color:var(--ink); background:var(--surface-2); }
+  .cmdk-trigger svg{ opacity:.7; }
+  .cmdk-trigger kbd{
+    background:var(--neutral-bg); border:1px solid var(--border-strong); border-radius:5px;
+    padding:2px 7px; font-size:11px; font-family:inherit; color:var(--ink-dim); margin-left:2px;
+  }
+  .top-right{ display:flex; align-items:center; gap:var(--space-3); }
+  .icon-btn{ position:relative; width:38px; height:38px; border-radius:50%; display:flex; align-items:center; justify-content:center; background:var(--surface); border:1px solid var(--border); cursor:pointer; transition:.18s; color:var(--ink-dim); }
+  .icon-btn:hover{ border-color:var(--border-strong); color:var(--ink); }
+  .icon-btn.bell::after{ content:''; position:absolute; top:9px; right:10px; width:7px; height:7px; border-radius:50%; background:var(--crimson); border:2px solid var(--surface); }
+  .avatar{
+    width:38px; height:38px; border-radius:50%; background:var(--cobalt); color:#fff;
+    display:flex; align-items:center; justify-content:center; font-size:13px; font-weight:600;
+    cursor:pointer; letter-spacing:.3px; border:2px solid var(--avatar-ring);
+  }
+
+  .page-header{
+    display:flex; justify-content:space-between; align-items:flex-end;
+    padding:var(--space-7) var(--space-8) 0 var(--space-8); flex-wrap:wrap; gap:var(--space-4);
+  }
+  .page-header h1{ font-size:36px; line-height:1.1; }
+  .page-header p{ color:var(--slate); margin-top:8px; font-size:14px; }
+  .btn{
+    border:0; border-radius:11px; font-weight:600; cursor:pointer;
+    font-family:inherit; font-size:14px; transition:.16s ease;
+    display:inline-flex; align-items:center; justify-content:center; gap:7px;
+  }
+  .btn-primary{ background:var(--cobalt); color:#fff; padding:12px 22px; box-shadow:0 4px 14px rgba(76,110,245,.35); }
+  .btn-primary:hover{ background:#3d5ce0; transform:translateY(-1px); box-shadow:0 6px 18px rgba(76,110,245,.45); }
+  .btn-secondary{ background:var(--surface-2); color:var(--ink); border:1px solid var(--border); padding:12px 22px; }
+  .btn-secondary:hover{ border-color:var(--border-strong); }
+  .btn-text{ background:none; color:var(--slate); padding:8px 6px; font-weight:600; }
+  .btn-text:hover{ color:var(--ink); }
+
+  .filters{
+    display:flex; align-items:center; gap:var(--space-3); flex-wrap:wrap;
+    padding:var(--space-5) var(--space-8);
+  }
+  .filters .count{ color:var(--slate); font-size:13px; margin-left:auto; }
+
+  /* ---- Custom select (replaces native <select> everywhere) ---- */
+  .xselect{ position:relative; display:inline-block; }
+  .xselect.block{ display:block; width:100%; }
+  .xselect-btn{
+    display:flex; align-items:center; justify-content:space-between; gap:10px;
+    background:var(--surface); border:1px solid var(--border);
+    border-radius:999px; padding:9px 14px 9px 16px; font-size:13px; color:var(--ink);
+    cursor:pointer; transition:.15s; user-select:none;
+  }
+  .xselect-btn:hover{ border-color:var(--border-strong); }
+  .xselect.open .xselect-btn{ border-color:var(--cobalt); box-shadow:0 0 0 3px var(--cobalt-soft); }
+  .xselect-btn .chev{ color:var(--slate); flex-shrink:0; transition:transform .15s; }
+  .xselect.open .xselect-btn .chev{ transform:rotate(180deg); }
+  .xselect.field-style .xselect-btn{
+    border-radius:var(--radius-sm); background:var(--field-bg); border-color:var(--border-strong);
+    padding:12px 13px; font-size:14px; width:100%;
+  }
+  .xselect-panel{
+    position:absolute; top:calc(100% + 6px); left:0; min-width:100%; z-index:60;
+    background:var(--surface-3); border:1px solid var(--border-strong); border-radius:var(--radius-sm);
+    box-shadow:var(--shadow-dropdown); padding:6px; opacity:0; transform:translateY(-4px); scale:.98;
+    pointer-events:none; transition:opacity .12s ease, transform .12s ease;
+  }
+  .xselect.open .xselect-panel{ opacity:1; transform:translateY(0); scale:1; pointer-events:auto; }
+  .xselect-opt{
+    padding:9px 12px; border-radius:8px; font-size:13px; cursor:pointer; color:var(--ink-dim);
+    white-space:nowrap; transition:.1s;
+  }
+  .xselect-opt:hover{ background:var(--cobalt-soft); color:var(--ink); }
+  .xselect-opt.selected{ color:var(--ink); background:var(--neutral-bg); font-weight:600; }
+  .opt-dot{ display:inline-block; width:8px; height:8px; border-radius:50%; margin-right:8px; vertical-align:middle; }
+
+  .client-grid{
+    display:grid; grid-template-columns:repeat(4,1fr); gap:var(--space-4);
+    padding:0 var(--space-8) var(--space-8) var(--space-8);
+  }
+  @media (max-width:1180px){ .client-grid{ grid-template-columns:repeat(2,1fr); } }
+  @media (max-width:640px){
+    .client-grid{ grid-template-columns:1fr; padding:0 var(--space-4);}
+    .page-header,.filters,.top-chrome{padding-left:var(--space-4);padding-right:var(--space-4);}
+  }
+
+  .client-card{
+    background:var(--surface); border-radius:var(--radius-md);
+    box-shadow:var(--shadow-card); padding:var(--space-5);
+    border:1px solid var(--border); transition:.18s ease;
+  }
+  .client-card:hover{ border-color:var(--cobalt); transform:translateY(-2px); box-shadow:0 4px 8px rgba(0,0,0,.24), 0 16px 32px rgba(0,0,0,.32); }
+
+  .card-top{ display:flex; justify-content:space-between; align-items:flex-start; gap:var(--space-2); }
+  .card-id{ display:flex; gap:var(--space-3); align-items:flex-start; min-width:0; }
+  .card-avatar{
+    width:44px; height:44px; min-width:44px; border-radius:50%; display:flex; align-items:center;
+    justify-content:center; font-weight:700; font-size:14px; color:#fff; flex-shrink:0;
+    border:2px solid var(--avatar-ring); letter-spacing:.2px;
+  }
+  .card-id .names{ min-width:0; padding-top:2px; }
+  .card-id h3{ font-size:15px; font-weight:600; line-height:1.35; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .card-id .contact{ font-size:12.5px; color:var(--slate); margin-top:3px; line-height:1.4; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .menu-dot{ color:var(--slate); cursor:pointer; font-size:18px; padding:2px 4px; border-radius:6px; flex-shrink:0; }
+  .menu-dot:hover{ background:var(--surface-2); color:var(--ink); }
+  .card-menu{ position:relative; }
+  .card-menu-panel{
+    position:absolute; top:100%; right:0; margin-top:4px; min-width:130px; z-index:40;
+    background:var(--surface-3); border:1px solid var(--border-strong); border-radius:var(--radius-sm);
+    box-shadow:var(--shadow-dropdown); padding:6px; opacity:0; transform:translateY(-4px);
+    pointer-events:none; transition:opacity .12s ease, transform .12s ease;
+  }
+  .card-menu-panel.open{ opacity:1; transform:translateY(0); pointer-events:auto; }
+  .card-menu-item{ padding:9px 12px; border-radius:8px; font-size:13px; cursor:pointer; color:var(--ink-dim); transition:.1s; }
+  .card-menu-item:hover{ background:var(--cobalt-soft); color:var(--ink); }
+  .card-menu-item.danger{ color:var(--crimson-text); }
+  .card-menu-item.danger:hover{ background:var(--crimson-soft); color:var(--crimson-text); }
+
+  .status-row{ margin-top:var(--space-4); }
+  .status-pill{
+    font-size:11px; font-weight:600; padding:5px 11px; border-radius:999px;
+    display:inline-flex; align-items:center; gap:6px; white-space:nowrap;
+  }
+  .status-pill::before{ content:''; width:6px; height:6px; border-radius:50%; flex-shrink:0; }
+  .status-active{ background:var(--chartreuse-soft); color:var(--chartreuse-text); }
+  .status-active::before{ background:var(--chartreuse); }
+  .status-overdue{ background:var(--crimson-soft); color:var(--crimson-text); }
+  .status-overdue::before{ background:var(--crimson); }
+  .status-neutral{ background:var(--neutral-bg); color:var(--slate); }
+  .status-neutral::before{ background:var(--slate); }
+
+  .card-stats{ display:flex; justify-content:space-between; margin-top:var(--space-4); padding-top:var(--space-4); border-top:1px solid var(--border); gap:var(--space-2); }
+  .card-stats > div{ font-size:11px; color:var(--slate); min-width:0; }
+  .card-stats strong{ display:block; font-size:13px; color:var(--ink); margin-top:4px; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .card-stats .mono{ font-size:13px; }
+  .priority-dot{ width:6px; height:6px; border-radius:50%; display:inline-block; margin-right:5px; }
+  .view-details{ width:100%; margin-top:var(--space-4); text-align:center; padding:10px; font-size:13px; }
+
+  .overlay{
+    position:fixed; inset:0; background:rgba(8,8,11,.82);
+    display:none; align-items:flex-start; justify-content:center;
+    padding-top:11vh; z-index:100;
+  }
+  .overlay.open{ display:flex; }
+
+  .cmdk-panel, .modal-panel, .confirm-panel{
+    animation:panelIn .15s ease-out;
+    will-change:transform, opacity;
+  }
+  @keyframes panelIn{
+    from{ opacity:0; transform:translateY(-4px); }
+    to{ opacity:1; transform:translateY(0); }
+  }
+
+  .cmdk-panel{
+    background:var(--surface-2); border:1px solid var(--border-strong); border-radius:var(--radius-lg); width:560px; max-width:92vw;
+    box-shadow:var(--shadow-modal); overflow:hidden;
+  }
+  .cmdk-input-row{ display:flex; align-items:center; gap:var(--space-3); padding:18px 20px; border-bottom:1px solid var(--border); }
+  .cmdk-input-row input{ border:0; outline:0; flex:1; font-size:15px; font-family:inherit; background:none; color:var(--ink); }
+  .cmdk-input-row input::placeholder{ color:var(--slate); }
+  .cmdk-input-row kbd{ background:var(--neutral-bg); border:1px solid var(--border-strong); border-radius:5px; padding:2px 7px; font-size:11px; color:var(--ink-dim); }
+  .cmdk-list{ padding:var(--space-2); max-height:340px; overflow-y:auto; }
+  .cmdk-item{ display:flex; align-items:center; gap:var(--space-3); padding:11px 12px; border-radius:var(--radius-sm); cursor:pointer; transition:.12s; }
+  .cmdk-item:hover{ background:var(--cobalt-soft); }
+  .cmdk-icon{ width:34px; height:34px; border-radius:9px; background:var(--icon-bg); display:flex; align-items:center; justify-content:center; flex-shrink:0; font-size:15px; }
+  .cmdk-item .label{ font-size:14px; font-weight:600; }
+  .cmdk-item .desc{ font-size:12px; color:var(--slate); margin-top:1px; }
+  .cmdk-item .shortcut{ margin-left:auto; font-size:11px; color:var(--slate); border:1px solid var(--border-strong); border-radius:5px; padding:2px 7px; flex-shrink:0; }
+  .cmdk-footer{ padding:11px 20px; border-top:1px solid var(--border); font-size:11px; color:var(--slate); display:flex; justify-content:space-between; }
+
+  .modal-panel{
+    background:var(--surface-2); border:1px solid var(--border-strong); border-radius:var(--radius-lg); width:540px; max-width:92vw;
+    box-shadow:var(--shadow-modal); padding:0; max-height:86vh; display:flex; flex-direction:column; overflow:hidden;
+  }
+  .modal-head{ display:flex; justify-content:space-between; align-items:center; padding:var(--space-5) var(--space-6) var(--space-4) var(--space-6); border-bottom:1px solid var(--border); flex-shrink:0; }
+  .modal-head-left{ width:64px; }
+  .back-link{ font-size:13px; color:var(--slate); cursor:pointer; display:inline-flex; align-items:center; gap:4px; transition:.15s; opacity:0; pointer-events:none; }
+  .back-link.visible{ opacity:1; pointer-events:auto; }
+  .back-link:hover{ color:var(--ink); }
+  .modal-title-block{ text-align:center; flex:1; }
+  .modal-title-block h2{ font-size:18px; }
+  .step-dots{ display:flex; gap:5px; justify-content:center; margin-top:6px; }
+  .step-dots span{ width:16px; height:4px; border-radius:99px; background:var(--border-strong); transition:background .2s; }
+  .step-dots span.filled{ background:var(--cobalt); }
+  .close-x{ cursor:pointer; color:var(--slate); font-size:16px; line-height:1; width:64px; text-align:right; transition:.15s; }
+  .close-x:hover{ color:var(--ink); }
+
+  .step-body{ padding:var(--space-6); overflow-y:auto; max-height:calc(86vh - 90px - 84px); }
+  .step-pane{ display:none; }
+  .step-pane.active{ display:block; animation:fadeStep .16s ease; }
+  @keyframes fadeStep{ from{opacity:0; transform:translateY(3px);} to{opacity:1; transform:translateY(0);} }
+
+  /* ---- Custom themed scrollbars (modal, command bar, dropdowns) ---- */
+  .step-body, .cmdk-list, .xselect-panel{
+    scrollbar-width:thin;
+    scrollbar-color:var(--border-strong) transparent;
+  }
+  .step-body::-webkit-scrollbar, .cmdk-list::-webkit-scrollbar, .xselect-panel::-webkit-scrollbar{
+    width:8px;
+  }
+  .step-body::-webkit-scrollbar-track, .cmdk-list::-webkit-scrollbar-track, .xselect-panel::-webkit-scrollbar-track{
+    background:transparent;
+  }
+  .step-body::-webkit-scrollbar-thumb, .cmdk-list::-webkit-scrollbar-thumb, .xselect-panel::-webkit-scrollbar-thumb{
+    background-color:var(--border-strong);
+    border-radius:999px;
+    border:2px solid var(--surface-2);
+  }
+  .step-body:hover::-webkit-scrollbar-thumb, .cmdk-list:hover::-webkit-scrollbar-thumb, .xselect-panel:hover::-webkit-scrollbar-thumb{
+    background-color:var(--cobalt);
+  }
+
+  .field{ margin-top:var(--space-4); }
+  .field:first-child{ margin-top:0; }
+  .field-row{ display:flex; gap:12px; margin-top:var(--space-4); }
+  .field-row:first-child{ margin-top:0; }
+  .field-row .field{ margin-top:0; }
+  .field label{ display:block; font-size:12px; font-weight:600; color:var(--ink-dim); margin-bottom:7px; letter-spacing:.2px; }
+  .field input, .field textarea{
+    width:100%; border:1px solid var(--border-strong); border-radius:var(--radius-sm);
+    box-sizing:border-box; padding:0 13px; font-size:14px; font-family:inherit; outline:0; background:var(--field-bg); color:var(--ink);
+    transition:.15s; height:46px; line-height:46px;
+  }
+  .field input::placeholder, .field textarea::placeholder{ color:var(--slate); }
+  .field input:focus, .field textarea:focus{ border-color:var(--cobalt); box-shadow:0 0 0 3px var(--cobalt-soft); background:var(--field-bg-focus); }
+  .field textarea{ resize:vertical; min-height:76px; height:auto; line-height:1.5; padding:12px 13px; }
+  .field input[type="date"]::-webkit-calendar-picker-indicator,
+  .field input[type="time"]::-webkit-calendar-picker-indicator{
+    filter:var(--icon-filter, none); opacity:.6; cursor:pointer;
+  }
+  .char-count{ text-align:right; font-size:11px; color:var(--slate); margin-top:5px; }
+
+  .priority-select{ display:flex; gap:8px; flex-wrap:wrap; }
+  .priority-opt{ border:1px solid var(--border-strong); border-radius:999px; padding:9px 15px; font-size:12.5px; cursor:pointer; display:flex; align-items:center; gap:7px; transition:.15s; color:var(--ink-dim); }
+  .priority-opt:hover{ border-color:var(--cobalt); }
+  .priority-opt.selected{ border-color:var(--cobalt); background:var(--cobalt-soft); color:var(--ink); }
+  .priority-opt .dot{ width:7px; height:7px; border-radius:50%; flex-shrink:0; }
+
+  .invoice-select{ display:flex; gap:8px; }
+  .invoice-opt{ flex:1; text-align:center; padding:11px; border-radius:999px; font-size:12.5px; font-weight:600; cursor:pointer; border:1px solid var(--border-strong); color:var(--ink-dim); transition:.15s; }
+  .invoice-opt:hover{ border-color:var(--border-strong); background:var(--icon-bg); }
+  .invoice-opt.selected.pending{ background:var(--neutral-bg); border-color:var(--slate); color:var(--ink); }
+  .invoice-opt.selected.paid{ background:var(--chartreuse-soft); border-color:var(--chartreuse); color:var(--chartreuse-text); }
+  .invoice-opt.selected.overdue{ background:var(--crimson-soft); border-color:var(--crimson); color:var(--crimson-text); }
+
+  .modal-footer{ display:flex; justify-content:space-between; align-items:center; padding:var(--space-5) var(--space-6); border-top:1px solid var(--border); flex-shrink:0; }
+
+  /* ---- Client Detail (full page) ---- */
+  .detail-page{ padding:0 var(--space-8) var(--space-8) var(--space-8); }
+  @media (max-width:640px){ .detail-page{ padding:0 var(--space-4); } }
+  .detail-back{
+    display:inline-flex; align-items:center; gap:6px; color:var(--slate); font-size:13px;
+    cursor:pointer; margin:var(--space-6) 0 var(--space-5) 0; transition:.15s;
+  }
+  .detail-back:hover{ color:var(--ink); }
+  .detail-header{
+    display:flex; justify-content:space-between; align-items:flex-start; gap:var(--space-4);
+    flex-wrap:wrap; margin-bottom:var(--space-6);
+  }
+  .detail-id{ display:flex; gap:var(--space-4); align-items:center; }
+  .detail-avatar{
+    width:72px; height:72px; min-width:72px; border-radius:50%; display:flex; align-items:center;
+    justify-content:center; font-weight:700; font-size:24px; color:#fff; border:3px solid var(--avatar-ring);
+  }
+  .detail-id h1{ font-size:28px; }
+  .detail-id .sub{ font-size:14px; color:var(--slate); margin-top:5px; }
+  .detail-badges{ display:flex; gap:8px; margin-top:10px; }
+  .detail-actions{ display:flex; align-items:center; gap:10px; }
+
+  .detail-stats{
+    display:grid; grid-template-columns:repeat(4,1fr); gap:var(--space-4); margin-bottom:var(--space-6);
+  }
+  @media (max-width:900px){ .detail-stats{ grid-template-columns:repeat(2,1fr); } }
+  .detail-stat-card{
+    background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-md);
+    padding:var(--space-4) var(--space-5); box-shadow:var(--shadow-card);
+  }
+  .detail-stat-card .dlabel{ font-size:11px; color:var(--slate); text-transform:uppercase; letter-spacing:.4px; margin-bottom:6px; }
+  .detail-stat-card .dvalue{ font-size:19px; font-weight:700; }
+
+  .detail-columns{ display:grid; grid-template-columns:1fr 1fr; gap:var(--space-4); margin-bottom:var(--space-4); }
+  @media (max-width:900px){ .detail-columns{ grid-template-columns:1fr; } }
+  .detail-card{
+    background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-md);
+    padding:var(--space-5); box-shadow:var(--shadow-card);
+  }
+  .detail-card h3{ font-size:14px; margin-bottom:var(--space-4); display:flex; align-items:center; gap:8px; }
+  .detail-card h3 svg{ opacity:.6; }
+  .detail-row{ display:flex; justify-content:space-between; align-items:center; padding:10px 0; border-bottom:1px solid var(--border); gap:var(--space-3); }
+  .detail-row:last-child{ border-bottom:0; padding-bottom:0; }
+  .detail-row .k{ font-size:12.5px; color:var(--slate); flex-shrink:0; }
+  .detail-row .v{ font-size:13.5px; font-weight:600; text-align:right; }
+  .detail-row .v.muted{ color:var(--slate); font-weight:500; }
+  .detail-row .v a{ color:var(--cobalt); text-decoration:none; }
+
+  .detail-notes-card{ margin-top:0; }
+  .detail-notes-body{ font-size:13.5px; line-height:1.7; color:var(--ink-dim); }
+  .detail-tags{ display:flex; gap:6px; flex-wrap:wrap; margin-top:4px; }
+  .detail-tag{ background:var(--cobalt-soft); color:var(--cobalt); font-size:11.5px; font-weight:600; padding:4px 10px; border-radius:999px; }
+
+  /* ---- Tasks page ---- */
+  .task-tabs{ display:flex; gap:var(--space-6); border-bottom:1px solid var(--border); padding:0 var(--space-8); margin-top:var(--space-2); }
+  @media (max-width:640px){ .task-tabs{ padding:0 var(--space-4); } }
+  .task-tab{ background:none; border:0; padding:10px 2px; font-size:14px; font-weight:600; color:var(--slate); cursor:pointer; border-bottom:2px solid transparent; margin-bottom:-1px; transition:.15s; font-family:inherit; }
+  .task-tab:hover{ color:var(--ink); }
+  .task-tab.active{ color:var(--cobalt); border-bottom-color:var(--cobalt); }
+
+  .task-search{ display:flex; align-items:center; gap:8px; background:var(--surface); border:1px solid var(--border); border-radius:999px; padding:9px 14px; font-size:13px; flex:1; max-width:260px; }
+  @media (max-width:640px){
+    .task-search{ max-width:none; flex-basis:100%; }
+  }
+  .task-search input{ border:0; outline:0; background:none; color:var(--ink); font-size:13px; width:100%; font-family:inherit; }
+  .task-search input::placeholder{ color:var(--slate); }
+
+  .task-section{ margin-top:var(--space-6); }
+  .task-section-head{ display:flex; align-items:center; gap:8px; margin-bottom:var(--space-3); padding:0 2px; }
+  .task-section-head h4{ font-size:14px; font-weight:700; }
+  .task-section-head .count-badge{ background:var(--neutral-bg); color:var(--slate); font-size:11px; font-weight:700; padding:2px 9px; border-radius:999px; }
+  .task-section-head.overdue h4, .task-section-head.overdue svg{ color:var(--crimson-text); }
+  .task-section-head.overdue .count-badge{ background:var(--crimson-soft); color:var(--crimson-text); }
+  .task-section-head .hint{ margin-left:auto; font-size:12px; color:var(--slate); }
+  .task-empty{ font-size:13px; color:var(--slate); padding:var(--space-5); text-align:center; background:var(--surface); border:1px dashed var(--border-strong); border-radius:var(--radius-md); }
+
+  .task-row{
+    display:flex; align-items:center; gap:var(--space-4); padding:13px var(--space-4);
+    border-radius:var(--radius-sm); border:1px solid var(--border); background:var(--surface);
+    margin-bottom:8px; transition:.15s; position:relative;
+  }
+  .task-row:hover{ border-color:var(--cobalt); }
+  .task-row.overdue{ border-left:3px solid var(--crimson); }
+  .task-row.completed-row{ opacity:.65; }
+
+  .task-row-head{ display:flex; align-items:center; gap:var(--space-4); flex:1; min-width:0; }
+  .task-meta{ display:flex; align-items:center; gap:var(--space-4); flex-shrink:0; }
+
+  .task-check{
+    width:20px; height:20px; border-radius:50%; border:2px solid var(--border-strong); flex-shrink:0;
+    cursor:pointer; display:flex; align-items:center; justify-content:center; transition:.15s; color:#fff;
+  }
+  .task-check:hover{ border-color:var(--cobalt); }
+  .task-check svg{ display:none; }
+  .task-check.checked{ background:var(--chartreuse); border-color:var(--chartreuse); }
+  .task-check.checked svg{ display:block; }
+
+  .task-main{ flex:1; min-width:0; }
+  .task-main .tname{ font-size:14px; font-weight:600; }
+  .task-main .tname.strike{ text-decoration:line-through; color:var(--slate); }
+  .task-main .tdesc{ font-size:12px; color:var(--slate); margin-top:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+
+  .task-client-chip{ display:flex; align-items:center; gap:6px; font-size:12.5px; color:var(--ink-dim); width:160px; flex-shrink:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .task-client-chip .dot{ width:8px; height:8px; border-radius:50%; flex-shrink:0; }
+  .task-due{ font-size:12.5px; color:var(--slate); width:110px; flex-shrink:0; }
+  .task-due.overdue-text{ color:var(--crimson-text); font-weight:600; }
+  .task-priority{ font-size:12.5px; width:90px; flex-shrink:0; display:flex; align-items:center; gap:6px; }
+  .task-menu{ position:relative; flex-shrink:0; }
+
+  /* ---- Toggle switch (Needs Follow-up) ---- */
+  .switch{ position:relative; display:inline-block; width:40px; height:22px; border-radius:999px; background:var(--neutral-bg); border:1px solid var(--border-strong); cursor:pointer; transition:.15s; flex-shrink:0; }
+  .switch.on{ background:var(--cobalt); border-color:var(--cobalt); }
+  .switch-knob{ position:absolute; top:2px; left:2px; width:16px; height:16px; border-radius:50%; background:#fff; transition:.15s; }
+  .switch.on .switch-knob{ transform:translateX(18px); }
+  .toggle-field label{ width:100%; font-size:13px; font-weight:600; color:var(--ink); }
+
+  /* ---- Communications timeline ---- */
+  .comm-timeline{ position:relative; }
+  .comm-timeline::before{ content:''; position:absolute; left:122px; top:6px; bottom:6px; width:2px; background:var(--border-strong); }
+  .comm-entry{ position:relative; display:flex; gap:var(--space-4); margin-bottom:var(--space-4); z-index:1; }
+  .comm-date-col{ width:90px; flex-shrink:0; text-align:right; font-size:11px; color:var(--slate); padding-top:8px; line-height:1.5; }
+  .comm-icon{
+    width:32px; height:32px; border-radius:50%; display:flex; align-items:center; justify-content:center;
+    color:#fff; flex-shrink:0; border:3px solid var(--bg);
+  }
+  .comm-card{
+    flex:1; min-width:0; background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-md);
+    padding:var(--space-4); box-shadow:var(--shadow-card);
+  }
+  .comm-card-top{ display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+  .comm-card-top .client-chip-inline{ display:flex; align-items:center; gap:6px; font-size:13px; font-weight:600; }
+  .comm-card-top .client-chip-inline .dot{ width:8px; height:8px; border-radius:50%; flex-shrink:0; }
+  .comm-card-top .comm-when{ font-size:12px; color:var(--slate); }
+  .comm-card-top .comm-outcome{ margin-left:auto; display:flex; align-items:center; gap:6px; font-size:12px; color:var(--slate); flex-shrink:0; }
+  .comm-card-top .comm-outcome .dot{ width:7px; height:7px; border-radius:50%; flex-shrink:0; }
+  .comm-type-label{ font-size:12.5px; font-weight:700; color:var(--ink-dim); margin-top:8px; }
+  .comm-note{ font-size:13px; color:var(--ink-dim); margin-top:4px; line-height:1.5; }
+  .comm-followup-row{ display:flex; align-items:center; gap:10px; margin-top:12px; flex-wrap:wrap; }
+  .comm-followup-tag{ background:var(--crimson-soft); color:var(--crimson-text); font-size:11.5px; font-weight:700; padding:5px 11px; border-radius:999px; display:inline-flex; align-items:center; gap:5px; }
+  .comm-task-linked{ font-size:11.5px; color:var(--chartreuse-text); font-weight:600; display:inline-flex; align-items:center; gap:5px; }
+
+  /* ---- Financials page ---- */
+  .fin-stat-grid{ display:grid; grid-template-columns:repeat(5,1fr); gap:var(--space-4); margin-top:var(--space-6); margin-bottom:var(--space-7); }
+  @media (max-width:1100px){ .fin-stat-grid{ grid-template-columns:repeat(3,1fr); } }
+  @media (max-width:640px){ .fin-stat-grid{ grid-template-columns:1fr 1fr; } }
+  .fin-stat-card{ background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-md); padding:var(--space-5); box-shadow:var(--shadow-card); }
+  .fin-stat-card .dvalue{ font-size:19px; font-weight:700; margin-top:8px; }
+  .fin-stat-card.fin-hero{
+    grid-column:span 1; position:relative; overflow:hidden;
+  }
+  .fin-hero::before{ content:''; position:absolute; top:0; left:0; right:0; height:3px; background:var(--chartreuse); }
+  @media (max-width:1100px){ .fin-stat-card.fin-hero{ grid-column:1 / -1; } }
+  .fin-hero .dlabel{ display:flex; align-items:center; gap:6px; }
+  .fin-hero .dvalue{ font-size:26px; color:var(--chartreuse-text); margin-top:10px; }
+  .fin-margin{ font-size:11.5px; color:var(--slate); margin-top:6px; }
+
+  .fin-columns{ display:grid; grid-template-columns:1fr 1fr; gap:var(--space-5); align-items:start; }
+  @media (max-width:900px){ .fin-columns{ grid-template-columns:1fr; } }
+  .fin-card-head{ display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:var(--space-5); gap:var(--space-3); flex-wrap:wrap; }
+  .fin-subtext{ font-size:12px; color:var(--slate); }
+
+  .fin-expense-row{ display:flex; align-items:center; gap:var(--space-4); padding:14px 0; border-bottom:1px solid var(--border); }
+  .fin-expense-row:last-child{ border-bottom:0; }
+  .fin-expense-main{ flex:1; min-width:0; }
+  .fin-expense-main .name{ font-size:13.5px; font-weight:600; }
+  .fin-expense-main .meta{ display:flex; align-items:center; gap:8px; margin-top:5px; flex-wrap:wrap; }
+  .fin-cat-pill{ font-size:10.5px; font-weight:700; padding:3px 9px; border-radius:999px; color:#fff; }
+  .fin-recurring-icon{ color:var(--slate); font-size:11px; display:inline-flex; align-items:center; gap:3px; }
+  .fin-expense-date{ font-size:11.5px; color:var(--slate); width:80px; flex-shrink:0; }
+  .fin-expense-amount{ font-size:13.5px; font-weight:700; color:var(--crimson-text); width:90px; text-align:right; flex-shrink:0; }
+
+  .fin-category-head{ font-size:14px; font-weight:700; margin-top:var(--space-6); }
+  .cat-bar-row{ display:flex; align-items:center; gap:12px; margin-bottom:12px; font-size:12px; }
+  .cat-bar-label{ width:120px; flex-shrink:0; color:var(--ink-dim); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .cat-bar-track{ flex:1; height:8px; border-radius:999px; background:var(--neutral-bg); overflow:hidden; }
+  .cat-bar-fill{ height:100%; border-radius:999px; }
+  .cat-bar-amount{ width:74px; text-align:right; flex-shrink:0; color:var(--slate); font-family:'IBM Plex Mono',monospace; }
+
+  .rev-client-row{ display:flex; align-items:center; gap:12px; padding:12px 0; border-bottom:1px solid var(--border); }
+  .rev-client-row:last-child{ border-bottom:0; }
+  .rev-client-row .dot{ width:9px; height:9px; border-radius:50%; flex-shrink:0; }
+  .rev-client-row .cname{ flex:1; min-width:0; font-size:13.5px; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .rev-client-row .cval{ font-size:13px; font-weight:700; font-family:'IBM Plex Mono',monospace; flex-shrink:0; }
+
+  .fin-insight{ margin-top:var(--space-5); background:var(--surface-2); border:1px solid var(--border); border-radius:var(--radius-sm); padding:var(--space-4) var(--space-5); font-size:12.5px; color:var(--ink-dim); line-height:1.7; }
+
+  /* ---- Dashboard ---- */
+  .dash-eyebrow{ font-size:11px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--slate); }
+  .dash-quick-pills{ display:flex; gap:8px; margin-top:var(--space-4); }
+  .dash-pill{ background:var(--surface); border:1px solid var(--border-strong); color:var(--ink-dim); border-radius:999px; padding:7px 14px; font-size:12.5px; font-weight:600; cursor:pointer; transition:.15s; font-family:inherit; }
+  .dash-pill:hover{ border-color:var(--cobalt); color:var(--ink); }
+
+  .dash-stat-grid{ display:grid; grid-template-columns:repeat(4,1fr); gap:var(--space-4); margin-top:var(--space-6); margin-bottom:var(--space-7); }
+  @media (max-width:900px){ .dash-stat-grid{ grid-template-columns:1fr 1fr; } }
+  .dash-stat-grid .dvalue{ font-size:24px; font-weight:700; margin-top:8px; }
+  .dash-trend{ font-size:11.5px; color:var(--slate); margin-top:6px; }
+
+  .dash-columns{ display:grid; grid-template-columns:1.6fr 1fr; gap:var(--space-5); align-items:start; }
+  @media (max-width:980px){ .dash-columns{ grid-template-columns:1fr; } }
+
+  .attn-row{ display:flex; align-items:center; gap:var(--space-4); padding:14px 0; border-bottom:1px solid var(--border); }
+  .attn-row:last-child{ border-bottom:0; }
+  .attn-row.overdue{ border-left:3px solid var(--crimson); padding-left:12px; }
+  .attn-head{ display:flex; align-items:flex-start; gap:12px; flex:1; min-width:0; }
+  .attn-tag{ font-size:10px; font-weight:700; letter-spacing:.03em; padding:4px 9px; border-radius:6px; text-transform:uppercase; flex-shrink:0; white-space:nowrap; margin-top:1px; }
+  .attn-tag.task{ background:rgba(76,110,245,.15); color:var(--cobalt); }
+  .attn-tag.invoice{ background:var(--crimson-soft); color:var(--crimson-text); }
+  .attn-tag.followup{ background:rgba(155,126,222,.18); color:#b9a4ec; }
+  .attn-main{ flex:1; min-width:0; }
+  .attn-main .aname{ font-size:13.5px; font-weight:600; }
+  .attn-main .ameta{ font-size:12px; color:var(--slate); margin-top:3px; line-height:1.5; }
+  .attn-main .ameta .dot{ display:inline-block; width:6px; height:6px; border-radius:50%; margin-right:6px; vertical-align:middle; }
+  .attn-when{ font-size:11.5px; color:var(--crimson-text); font-weight:600; text-align:right; width:110px; flex-shrink:0; }
+  .attn-when .d{ display:block; font-weight:400; color:var(--slate); margin-top:2px; }
+  .attn-actions{ display:flex; align-items:center; gap:var(--space-4); flex-shrink:0; }
+  .attn-btn{ padding:8px 14px; font-size:12px; flex-shrink:0; }
+
+  @media (max-width:640px){
+    .attn-row{ flex-wrap:wrap; padding:14px 12px; row-gap:10px; align-items:flex-start; }
+    .attn-head{ width:100%; }
+    .attn-actions{
+      width:100%; justify-content:space-between; padding-top:10px;
+      border-top:1px solid var(--border);
+    }
+    .attn-when{ width:auto; text-align:left; }
+    .attn-when .d{ display:inline; margin-top:0; margin-left:4px; }
+  }
+
+  .dash-tabs{ display:flex; gap:4px; background:var(--neutral-bg); border-radius:999px; padding:3px; margin-bottom:var(--space-4); width:fit-content; }
+  .dash-tab{ background:none; border:0; padding:7px 14px; border-radius:999px; font-size:12.5px; font-weight:600; color:var(--slate); cursor:pointer; font-family:inherit; transition:.15s; }
+  .dash-tab.active{ background:var(--cobalt); color:#fff; }
+
+  .health-row{ display:flex; align-items:center; gap:10px; padding:9px 0; border-bottom:1px solid var(--border); font-size:13px; }
+  .health-row:last-child{ border-bottom:0; }
+  .health-row .dot{ width:8px; height:8px; border-radius:50%; flex-shrink:0; }
+  .health-row .cname{ flex:1; min-width:0; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .health-row .csince{ font-size:11.5px; flex-shrink:0; }
+
+  .activity-row{ display:flex; align-items:center; gap:10px; padding:9px 0; border-bottom:1px solid var(--border); font-size:12.5px; }
+  .activity-row:last-child{ border-bottom:0; }
+  .activity-row .dot{ width:7px; height:7px; border-radius:50%; flex-shrink:0; }
+  .activity-row .atext{ flex:1; min-width:0; color:var(--ink-dim); }
+  .activity-row .atime{ font-size:11px; color:var(--slate); flex-shrink:0; }
+
+  .dash-notes{
+    width:100%; min-height:110px; border:0; background:none; outline:0; resize:vertical;
+    color:var(--ink); font-family:inherit; font-size:13px; line-height:1.6; padding:0;
+  }
+  .dash-notes::placeholder{ color:var(--slate); }
+
+  /* ---- Settings page ---- */
+  .settings-row{
+    display:flex; gap:var(--space-5); background:var(--surface); border:1px solid var(--border);
+    border-radius:var(--radius-md); padding:var(--space-6); box-shadow:var(--shadow-card); margin-bottom:var(--space-4);
+  }
+  .settings-icon{
+    width:44px; height:44px; min-width:44px; border-radius:50%; background:var(--neutral-bg);
+    display:flex; align-items:center; justify-content:center; font-size:18px;
+  }
+  .settings-main{ flex:1; min-width:0; }
+  .settings-main h3{ font-size:16px; margin-bottom:2px; }
+  @media (max-width:640px){
+    .settings-row{ padding:var(--space-4); gap:var(--space-3); }
+    .settings-icon{ display:none; }
+  }
+
+  .settings-item{ display:flex; align-items:center; gap:var(--space-3); padding:12px 0; border-bottom:1px solid var(--border); }
+  .settings-item:last-child{ border-bottom:0; }
+  .settings-item-icon{ width:34px; height:34px; min-width:34px; border-radius:9px; background:var(--neutral-bg); display:flex; align-items:center; justify-content:center; font-size:14px; }
+  .settings-item-text{ flex:1; min-width:0; display:flex; flex-direction:column; }
+  .settings-item-text strong{ font-size:13.5px; }
+  .settings-item-text span{ font-size:12px; color:var(--slate); margin-top:2px; }
+
+  .sync-status{ display:flex; align-items:center; gap:8px; font-size:13px; color:var(--ink-dim); }
+  .sync-dot{ width:8px; height:8px; border-radius:50%; background:var(--crimson); flex-shrink:0; }
+  .sync-status.synced .sync-dot{ background:var(--chartreuse); }
+
+  .code-display{
+    display:flex; align-items:center; justify-content:space-between; gap:var(--space-4);
+    background:var(--surface-2); border:1px solid var(--border-strong); border-radius:var(--radius-sm);
+    padding:var(--space-4) var(--space-5);
+  }
+  .code-digits{ font-family:'IBM Plex Mono',monospace; font-size:26px; font-weight:700; letter-spacing:6px; }
+  .code-inputs-row{ display:flex; gap:8px; margin-bottom:14px; }
+  .code-input{
+    width:46px; height:54px; flex:0 0 auto; text-align:center; font-size:20px; font-family:'IBM Plex Mono',monospace;
+    border:1px solid var(--border-strong); border-radius:var(--radius-sm); background:var(--field-bg); color:var(--ink); outline:0;
+  }
+  .code-input:focus{ border-color:var(--cobalt); box-shadow:0 0 0 3px var(--cobalt-soft); }
+
+  /* ---- Guide page ---- */
+  .guide-step{ display:flex; align-items:flex-start; gap:var(--space-3); padding:11px 0; border-bottom:1px solid var(--border); }
+  .guide-step:last-child{ border-bottom:0; }
+  .guide-num{
+    width:24px; height:24px; min-width:24px; border-radius:50%; background:var(--cobalt); color:#fff;
+    display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:700; margin-top:1px;
+  }
+  .guide-num-danger{ background:var(--crimson); }
+  .guide-step-danger{ background:var(--crimson-soft); border-radius:var(--radius-sm); padding:12px 14px; border-bottom:0; margin-bottom:8px; }
+  .guide-step-text{ flex:1; min-width:0; display:flex; flex-direction:column; gap:3px; }
+  .guide-step-text strong{ font-size:13.5px; }
+  .guide-step-text span{ font-size:12px; color:var(--slate); }
+
+  .guide-kbd{
+    display:inline-block; background:var(--neutral-bg); border:1px solid var(--border-strong); border-radius:6px;
+    padding:3px 8px; font-family:'IBM Plex Mono',monospace; font-size:12px; color:var(--ink);
+  }
+  .guide-shortcut-grid{ display:grid; grid-template-columns:1fr 1fr; gap:12px 24px; }
+  @media (max-width:640px){ .guide-shortcut-grid{ grid-template-columns:1fr; } }
+  .guide-shortcut{ display:flex; align-items:center; gap:12px; }
+  .guide-shortcut span{ font-size:12.5px; color:var(--ink-dim); }
+
+  .guide-faq{ padding:11px 0; border-bottom:1px solid var(--border); display:flex; flex-direction:column; gap:4px; }
+  .guide-faq:last-child{ border-bottom:0; }
+  .guide-faq strong{ font-size:13.5px; }
+  .guide-faq span{ font-size:12.5px; color:var(--slate); }
+
+  /* ---- Dashboard v2: analytics widgets ---- */
+  .dash-analytics-row{ display:grid; grid-template-columns:1fr 1fr; gap:var(--space-4); margin-top:var(--space-6); margin-bottom:var(--space-7); }
+  @media (max-width:900px){ .dash-analytics-row{ grid-template-columns:1fr; } }
+  .dash-viewall{ font-size:12px; color:var(--cobalt); cursor:pointer; flex-shrink:0; }
+  .dash-big-stat{ font-size:26px; font-weight:700; margin:10px 0 var(--space-4) 0; }
+  .dash-big-stat-label{ font-size:12.5px; font-weight:500; color:var(--slate); }
+
+  .pipeline-bar{ display:flex; height:10px; border-radius:999px; overflow:hidden; background:var(--neutral-bg); }
+  .pipeline-bar span{ height:100%; }
+  .pipeline-legend{ display:flex; gap:var(--space-4); flex-wrap:wrap; margin-top:var(--space-4); }
+  .pipeline-legend .pl-item{ font-size:12px; color:var(--ink-dim); }
+  .pipeline-legend .dot{ width:8px; height:8px; border-radius:50%; display:inline-block; margin-right:6px; }
+  .pipeline-legend strong{ display:block; font-size:15px; margin-top:2px; }
+
+  .chart-legend{ display:flex; gap:var(--space-4); font-size:11.5px; color:var(--slate); }
+  .chart-legend .dot{ width:7px; height:7px; border-radius:50%; display:inline-block; margin-right:5px; }
+  .mini-chart{ display:flex; align-items:flex-end; gap:10px; height:100px; margin-top:var(--space-4); }
+  .chart-col{ flex:1; display:flex; flex-direction:column; align-items:center; gap:4px; cursor:default; }
+  .chart-bars{ display:flex; align-items:flex-end; gap:3px; height:80px; width:100%; justify-content:center; }
+  .chart-bar{ width:9px; border-radius:3px 3px 0 0; min-height:3px; cursor:pointer; transition:opacity .1s; }
+  .chart-bar:hover{ opacity:.75; }
+  .chart-col-label{ font-size:10px; color:var(--slate); }
+
+  .dash-board-head{ display:flex; justify-content:space-between; align-items:flex-end; margin-bottom:var(--space-4); gap:var(--space-3); flex-wrap:wrap; }
+
+  .widget-grid{ display:grid; grid-template-columns:1.4fr 1fr 1fr; gap:var(--space-4); align-items:start; }
+  @media (max-width:980px){ .widget-grid{ grid-template-columns:1fr 1fr; } }
+  @media (max-width:640px){ .widget-grid{ grid-template-columns:1fr; } }
+  .widget-card{ }
+  .drag-title{ display:flex; align-items:center; gap:8px; }
+
+  .sticky-note{
+    background:#F4E3A1; color:#3d3417; border-radius:var(--radius-md); padding:var(--space-5);
+    box-shadow:0 8px 20px rgba(0,0,0,.35); transform:rotate(-1deg);
+  }
+  .sticky-note .dash-notes{ color:#3d3417; }
+  .sticky-note .dash-notes::placeholder{ color:#8a752f; }
+
+  @media (max-width:640px){
+    .comm-timeline::before{ left:26px; }
+    .comm-entry{ flex-direction:column; gap:6px; }
+    .comm-date-col{ width:auto; text-align:left; padding-top:0; order:-1; padding-left:44px; }
+    .comm-icon{ position:absolute; left:0; top:26px; }
+    .comm-card{ margin-left:44px; }
+    .comm-followup-row{ flex-direction:column; align-items:stretch; }
+  }
+
+  /* Mobile: stack into a card — title row on top, meta info listed vertically below, menu pinned to the corner */
+  @media (max-width:640px){
+    .task-row{ flex-direction:column; align-items:stretch; gap:10px; padding:var(--space-4); padding-right:44px; }
+    .task-row-head{ width:100%; }
+    .task-meta{ flex-direction:column; align-items:flex-start; gap:8px; width:100%; }
+    .task-client-chip, .task-due, .task-priority{ width:auto; }
+    .task-row > .card-menu{ position:absolute; top:12px; right:10px; }
+  }
+
+  .confirm-panel{ background:var(--surface-2); border:1px solid var(--border-strong); border-radius:var(--radius-lg); width:380px; max-width:90vw; box-shadow:var(--shadow-modal); padding:var(--space-7); text-align:center; }
+  .confirm-icon{ width:48px; height:48px; border-radius:50%; background:var(--crimson-soft); color:var(--crimson-text); display:flex; align-items:center; justify-content:center; margin:0 auto var(--space-4) auto; font-size:20px; }
+  .confirm-panel h3{ font-size:16px; margin-bottom:8px; }
+  .confirm-panel p{ font-size:13px; color:var(--slate); margin-bottom:var(--space-6); line-height:1.5; }
+  .confirm-actions{ display:flex; gap:var(--space-3); }
+  .confirm-actions .btn{ flex:1; }
+  .btn-danger{ background:var(--crimson); color:#fff; }
+  .btn-danger:hover{ background:#c92e50; }
+
+  .fab{
+    display:none; position:fixed; bottom:26px; right:26px; width:56px; height:56px;
+    border-radius:50%; background:var(--cobalt); color:#fff; align-items:center; justify-content:center;
+    box-shadow:0 10px 28px rgba(76,110,245,.5); cursor:pointer; z-index:50; border:0;
+  }
+  @media (max-width:640px){ .fab{ display:flex; } .cmdk-trigger .label-text{ display:none; } }
+  @media (max-width:480px){
+    .code-inputs-row{ gap:6px; }
+    .code-input{ width:38px; height:46px; font-size:17px; }
+  }
+
+  .toast{
+    position:fixed; bottom:28px; left:50%; transform:translateX(-50%) translateY(16px);
+    background:var(--surface-2); border:1px solid var(--border-strong); color:var(--ink); padding:13px 22px; border-radius:999px; font-size:13px;
+    opacity:0; pointer-events:none; transition:.25s ease; z-index:200; box-shadow:var(--shadow-modal);
+    display:flex; align-items:center; gap:8px;
+  }
+  .toast.show{ opacity:1; transform:translateX(-50%) translateY(0); }
+  .toast.error{ border-color:rgba(226,58,93,.4); }
+  .toast .dot{ width:7px; height:7px; border-radius:50%; background:var(--chartreuse); flex-shrink:0; }
+  .toast.error .dot{ background:var(--crimson); }
+</style>
+</head>
+<body>
+
+  <div class="top-chrome">
+    <div class="top-left">
+      <div class="pages-menu">
+        <button class="icon-btn" id="pagesMenuBtn" title="Pages">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
+        </button>
+        <div class="pages-menu-panel" id="pagesMenuPanel">
+          <div class="pages-menu-item" data-page="dashboard">🏠 Dashboard</div>
+          <div class="pages-menu-item" data-page="clients">👤 Clients</div>
+          <div class="pages-menu-item" data-page="tasks">📋 Tasks</div>
+          <div class="pages-menu-item" data-page="comms">🕑 Communications</div>
+          <div class="pages-menu-item" data-page="financials">📊 Financials</div>
+          <div class="pages-menu-item" data-page="settings">⚙️ Settings</div>
+          <div class="pages-menu-item" data-page="guide">📘 Guide</div>
+        </div>
+      </div>
+      <div class="cmdk-trigger" id="cmdkTrigger">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <span class="label-text">Search or type a command...</span><kbd>⌘K</kbd>
+      </div>
+    </div>
+    <div class="top-right">
+      <div class="icon-btn" id="themeToggle" title="Toggle theme">
+        <svg id="themeIconMoon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+        <svg id="themeIconSun" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:none;"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      </div>
+      <div class="avatar">JD</div>
+    </div>
+  </div>
+
+  <div id="pageWrap">
+    <div class="page-header">
+      <div>
+        <h1 class="headline">Clients</h1>
+        <p>Manage your clients, track relationships, and grow your business.</p>
+      </div>
+      <button class="btn btn-primary" id="addClientBtn">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Add Client
+      </button>
+    </div>
+
+    <div class="filters">
+      <div id="statusFilterMount"></div>
+      <div id="priorityFilterMount"></div>
+      <span class="count" id="clientCount">0 clients</span>
+    </div>
+
+    <div class="client-grid" id="clientGrid"></div>
+  </div>
+
+  <button class="fab" id="fabBtn">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+  </button>
+
+  <div class="overlay" id="cmdkOverlay">
+    <div class="cmdk-panel">
+      <div class="cmdk-input-row">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="opacity:.6"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input type="text" placeholder="Search clients, or type a command..." id="cmdkInput">
+        <kbd>ESC</kbd>
+      </div>
+      <div class="cmdk-list">
+        <div class="cmdk-item" data-action="add-client">
+          <div class="cmdk-icon">＋</div>
+          <div><div class="label">Add Client</div><div class="desc">Create a new client record</div></div>
+          <span class="shortcut">⌘1</span>
+        </div>
+        <div class="cmdk-item" data-action="add-task">
+          <div class="cmdk-icon">✓</div>
+          <div><div class="label">Add Task</div><div class="desc">Create a new task</div></div>
+          <span class="shortcut">⌘2</span>
+        </div>
+        <div class="cmdk-item" data-action="add-comm">
+          <div class="cmdk-icon">💬</div>
+          <div><div class="label">Log Communication</div><div class="desc">Record a call, email, or meeting</div></div>
+          <span class="shortcut">⌘3</span>
+        </div>
+        <div class="cmdk-item" data-action="add-expense">
+          <div class="cmdk-icon">💵</div>
+          <div><div class="label">Add Expense</div><div class="desc">Log a business expense</div></div>
+          <span class="shortcut">⌘4</span>
+        </div>
+        <div class="cmdk-item" data-action="goto-dashboard">
+          <div class="cmdk-icon">🏠</div>
+          <div><div class="label">Jump to Dashboard</div><div class="desc">Your daily overview</div></div>
+          <span class="shortcut">⌘0</span>
+        </div>
+        <div class="cmdk-item" data-action="goto-clients">
+          <div class="cmdk-icon">👤</div>
+          <div><div class="label">Jump to Clients</div><div class="desc">View and manage your clients</div></div>
+          <span class="shortcut">⌘5</span>
+        </div>
+        <div class="cmdk-item" data-action="goto-tasks">
+          <div class="cmdk-icon">📋</div>
+          <div><div class="label">Jump to Tasks</div><div class="desc">View and manage your tasks</div></div>
+          <span class="shortcut">⌘6</span>
+        </div>
+        <div class="cmdk-item" data-action="goto-comms">
+          <div class="cmdk-icon">🕑</div>
+          <div><div class="label">Jump to Communications</div><div class="desc">View your communication timeline</div></div>
+          <span class="shortcut">⌘7</span>
+        </div>
+        <div class="cmdk-item" data-action="goto-financials">
+          <div class="cmdk-icon">📊</div>
+          <div><div class="label">Go to Financials</div><div class="desc">View revenue, invoices, and reports</div></div>
+          <span class="shortcut">⌘8</span>
+        </div>
+        <div class="cmdk-item" data-action="goto-settings">
+          <div class="cmdk-icon">⚙️</div>
+          <div><div class="label">Go to Settings</div><div class="desc">Profile, data, and device sync</div></div>
+          <span class="shortcut">⌘9</span>
+        </div>
+        <div class="cmdk-item" data-action="goto-guide">
+          <div class="cmdk-icon">📘</div>
+          <div><div class="label">Guide</div><div class="desc">Quick start, shortcuts, and FAQ</div></div>
+        </div>
+      </div>
+      <div class="cmdk-footer">
+        <span>↑↓ Navigate · ↵ Select</span>
+        <span>Type a command, search, or use shortcuts</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="overlay" id="addClientOverlay">
+    <div class="modal-panel">
+      <div class="modal-head">
+        <div class="modal-head-left"><span class="back-link" id="backToStep1">← Back</span></div>
+        <div class="modal-title-block">
+          <h2 class="headline" id="modalTitle">Add Client</h2>
+          <div class="step-dots"><span id="dot1" class="filled"></span><span id="dot2"></span></div>
+        </div>
+        <span class="close-x" id="closeAddClient">✕</span>
+      </div>
+
+      <div class="step-body">
+        <div class="step-pane active" id="step1">
+          <div class="field"><label>Client / Company Name *</label><input type="text" id="f_name" placeholder="e.g. Alpine Creative Co."></div>
+          <div class="field"><label>Contact Person</label><input type="text" id="f_contact" placeholder="e.g. Sarah Chen"></div>
+          <div class="field"><label>Email</label><input type="email" id="f_email" placeholder="sarah@alpinecreative.co"></div>
+          <div class="field"><label>Status</label><div id="statusFieldMount"></div></div>
+          <div class="field"><label>Priority</label>
+            <div class="priority-select" id="prioritySelect">
+              <div class="priority-opt" data-val="Low"><span class="dot" style="background:#A3D65C"></span>Low</div>
+              <div class="priority-opt selected" data-val="Medium"><span class="dot" style="background:#4C6EF5"></span>Medium</div>
+              <div class="priority-opt" data-val="High"><span class="dot" style="background:#E6A23C"></span>High</div>
+              <div class="priority-opt" data-val="Very High"><span class="dot" style="background:#E23A5D"></span>Very High</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="step-pane" id="step2">
+          <div class="field"><label>Phone</label><input type="text" id="f_phone" placeholder="(555) 123-4567"></div>
+          <div class="field"><label>Website</label><input type="text" id="f_website" placeholder="e.g. alpinecreative.co"></div>
+          <div class="field"><label>Industry</label><input type="text" id="f_industry" placeholder="e.g. Brand & Web Design"></div>
+          <div class="field"><label>Project / Service</label><input type="text" id="f_project" placeholder="e.g. Brand & Web Design"></div>
+          <div class="field"><label>Deal Value</label><input type="number" id="f_deal" placeholder="0.00"></div>
+          <div class="field"><label>Payment Method</label><div id="paymentFieldMount"></div></div>
+          <div class="field"><label>Invoice Status</label>
+            <div class="invoice-select" id="invoiceSelect">
+              <div class="invoice-opt selected pending" data-val="Pending">Pending</div>
+              <div class="invoice-opt paid" data-val="Paid">Paid</div>
+              <div class="invoice-opt overdue" data-val="Overdue">Overdue</div>
+            </div>
+          </div>
+          <div class="field"><label>Lead Source</label><div id="sourceFieldMount"></div></div>
+          <div class="field"><label>Start Date</label><input type="date" id="f_start"></div>
+          <div class="field"><label>Notes</label><textarea id="f_notes" maxlength="500" placeholder="Any general notes about this client..."></textarea>
+            <div class="char-count"><span id="notesCount">0</span>/500</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer" id="footerStep1">
+        <span class="btn btn-text" id="quickAddBtn">Skip &amp; Add Client</span>
+        <button class="btn btn-primary" id="nextStepBtn">Next →</button>
+      </div>
+      <div class="modal-footer" id="footerStep2" style="display:none;">
+        <button class="btn btn-secondary" id="skipStep2">Skip for now</button>
+        <button class="btn btn-primary" id="saveStep2">Save Client</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="detail-page" id="clientDetailPage" style="display:none;">
+    <div class="detail-back" id="detailBackBtn">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+      Back to Clients
+    </div>
+
+    <div class="detail-header">
+      <div class="detail-id">
+        <div class="detail-avatar" id="dp_avatar"></div>
+        <div>
+          <h1 class="headline" id="dp_name"></h1>
+          <div class="sub" id="dp_sub"></div>
+          <div class="detail-badges">
+            <span id="dp_status"></span>
+            <span id="dp_priority" class="status-pill status-neutral"></span>
+          </div>
+        </div>
+      </div>
+      <div class="detail-actions">
+        <button class="btn btn-secondary" id="dp_logCommBtn">Log Communication</button>
+        <button class="btn btn-secondary" id="dp_deleteBtn">Delete</button>
+        <button class="btn btn-primary" id="dp_editBtn">Edit Client</button>
+      </div>
+    </div>
+
+    <div class="detail-stats">
+      <div class="detail-stat-card"><div class="dlabel">Deal Value</div><div class="dvalue mono" id="dp_deal"></div></div>
+      <div class="detail-stat-card"><div class="dlabel">Invoice Status</div><div class="dvalue" id="dp_invoice"></div></div>
+      <div class="detail-stat-card"><div class="dlabel">Client Since</div><div class="dvalue" id="dp_since"></div></div>
+      <div class="detail-stat-card"><div class="dlabel">Last Contact</div><div class="dvalue" id="dp_lastcontact"></div></div>
+    </div>
+
+    <div class="detail-columns">
+      <div class="detail-card">
+        <h3>
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          Contact & Company
+        </h3>
+        <div class="detail-row"><span class="k">Contact Person</span><span class="v" id="dp_contact"></span></div>
+        <div class="detail-row"><span class="k">Email</span><span class="v" id="dp_email"></span></div>
+        <div class="detail-row"><span class="k">Phone</span><span class="v" id="dp_phone"></span></div>
+        <div class="detail-row"><span class="k">Website</span><span class="v" id="dp_website"></span></div>
+        <div class="detail-row"><span class="k">Industry</span><span class="v" id="dp_industry"></span></div>
+        <div class="detail-row"><span class="k">Lead Source</span><span class="v" id="dp_source"></span></div>
+      </div>
+
+      <div class="detail-card">
+        <h3>
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+          Deal & Billing
+        </h3>
+        <div class="detail-row"><span class="k">Project / Service</span><span class="v" id="dp_project"></span></div>
+        <div class="detail-row"><span class="k">Payment Method</span><span class="v" id="dp_payment"></span></div>
+        <div class="detail-row"><span class="k">Start Date</span><span class="v" id="dp_start"></span></div>
+        <div class="detail-row"><span class="k">Priority</span><span class="v" id="dp_priorityrow"></span></div>
+      </div>
+    </div>
+
+    <div class="detail-card detail-notes-card">
+      <h3>
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        Notes
+      </h3>
+      <div class="detail-notes-body" id="dp_notes"></div>
+    </div>
+  </div>
+
+  <div id="tasksPage" style="display:none;">
+    <div class="page-header tasks-page-header">
+      <div>
+        <h1 class="headline">Tasks</h1>
+        <p>Stay on top of every client commitment.</p>
+      </div>
+      <button class="btn btn-primary" id="addTaskBtn">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Add Task
+      </button>
+    </div>
+
+    <div class="task-tabs">
+      <button class="task-tab active" data-tab="active">Active</button>
+      <button class="task-tab" data-tab="completed">Completed</button>
+    </div>
+
+    <div class="filters">
+      <div class="task-search">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="opacity:.6; flex-shrink:0;"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input type="text" id="taskSearchInput" placeholder="Find a task...">
+      </div>
+      <div id="taskClientFilterMount"></div>
+      <div id="taskPriorityFilterMount"></div>
+      <div id="taskDateFilterMount"></div>
+    </div>
+
+    <div class="detail-page" style="padding-top:0;">
+      <div id="taskSections"></div>
+    </div>
+  </div>
+
+  <div id="commsPage" style="display:none;">
+    <div class="page-header">
+      <div>
+        <h1 class="headline">Communications</h1>
+        <p>Every conversation, in one timeline.</p>
+      </div>
+      <button class="btn btn-primary" id="addCommBtn">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Log Communication
+      </button>
+    </div>
+
+    <div class="filters">
+      <div class="task-search">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="opacity:.6; flex-shrink:0;"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input type="text" id="commSearchInput" placeholder="Search communications...">
+      </div>
+      <div id="commClientFilterMount"></div>
+      <div id="commTypeFilterMount"></div>
+    </div>
+
+    <div class="detail-page" style="padding-top:0;">
+      <div class="comm-timeline" id="commTimeline"></div>
+    </div>
+  </div>
+
+  <div class="overlay" id="addTaskOverlay">
+    <div class="modal-panel">
+      <div class="modal-head" style="border-bottom:0;">
+        <div class="modal-head-left"></div>
+        <div class="modal-title-block"><h2 class="headline" id="taskModalTitle">Add Task</h2></div>
+        <span class="close-x" id="closeAddTask">✕</span>
+      </div>
+      <div class="step-body" style="padding-top:0;">
+        <div class="field"><label>Task Name *</label><input type="text" id="t_name" placeholder="e.g. Follow up on invoice"></div>
+        <div class="field"><label>Client</label><div id="taskClientFieldMount"></div></div>
+        <div class="field"><label>Due Date</label><input type="date" id="t_due"></div>
+        <div class="field"><label>Priority</label>
+          <div class="priority-select" id="taskPrioritySelect">
+            <div class="priority-opt" data-val="Low"><span class="dot" style="background:#A3D65C"></span>Low</div>
+            <div class="priority-opt selected" data-val="Medium"><span class="dot" style="background:#4C6EF5"></span>Medium</div>
+            <div class="priority-opt" data-val="High"><span class="dot" style="background:#E6A23C"></span>High</div>
+            <div class="priority-opt" data-val="Very High"><span class="dot" style="background:#E23A5D"></span>Very High</div>
+          </div>
+        </div>
+        <div class="field"><label>Description (optional)</label><textarea id="t_desc" maxlength="500" placeholder="Add any details..."></textarea>
+          <div class="char-count"><span id="taskDescCount">0</span>/500</div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" id="cancelAddTask">Cancel</button>
+        <button class="btn btn-primary" id="saveTaskBtn">Add Task</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="overlay" id="addCommOverlay">
+    <div class="modal-panel">
+      <div class="modal-head" style="border-bottom:0;">
+        <div class="modal-head-left"></div>
+        <div class="modal-title-block"><h2 class="headline" id="commModalTitle">Log Communication</h2></div>
+        <span class="close-x" id="closeAddComm">✕</span>
+      </div>
+      <div class="step-body" style="padding-top:0;">
+        <div class="field"><label>Client *</label><div id="commClientFieldMount"></div></div>
+        <div class="field"><label>Type</label>
+          <div class="priority-select" id="commTypeSelect">
+            <div class="priority-opt selected" data-val="Call"><span class="dot" style="background:#4C6EF5"></span>Call</div>
+            <div class="priority-opt" data-val="Email"><span class="dot" style="background:#A3D65C"></span>Email</div>
+            <div class="priority-opt" data-val="Meeting"><span class="dot" style="background:#9B7EDE"></span>Meeting</div>
+            <div class="priority-opt" data-val="Message"><span class="dot" style="background:#E6A23C"></span>Message</div>
+          </div>
+        </div>
+        <div class="field-row">
+          <div class="field" style="flex:1;"><label>Date</label><input type="date" id="c_date"></div>
+          <div class="field" style="flex:1;"><label>Time</label><input type="time" id="c_time"></div>
+        </div>
+        <div class="field"><label>Note</label><textarea id="c_note" maxlength="500" placeholder="What was discussed?"></textarea>
+          <div class="char-count"><span id="commNoteCount">0</span>/500</div>
+        </div>
+        <div class="field"><label>Outcome</label>
+          <div class="invoice-select" id="commOutcomeSelect">
+            <div class="invoice-opt paid" data-val="Positive">🟢 Positive</div>
+            <div class="invoice-opt selected pending" data-val="Neutral">⚪ Neutral</div>
+            <div class="invoice-opt overdue" data-val="Needs Attention">🔴 Needs Attention</div>
+          </div>
+        </div>
+        <div class="field toggle-field">
+          <label style="display:flex; align-items:center; justify-content:space-between; margin-bottom:0;">
+            <span>Needs Follow-up?</span>
+            <span class="switch" id="commFollowupToggle"><span class="switch-knob"></span></span>
+          </label>
+        </div>
+        <div id="commFollowupFields" style="display:none;">
+          <div class="field-row">
+            <div class="field" style="flex:1; margin-top:0;"><label>Task Name</label><input type="text" id="c_taskname" placeholder="Follow up with client..."></div>
+            <div class="field" style="flex:1; margin-top:0;"><label>Due Date</label><input type="date" id="c_taskdue"></div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" id="cancelAddComm">Cancel</button>
+        <button class="btn btn-primary" id="saveCommBtn">Log Communication</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="financialsPage" style="display:none;">
+    <div class="page-header">
+      <div>
+        <h1 class="headline">Financials</h1>
+        <p>Revenue, expenses, and your real bottom line.</p>
+      </div>
+      <button class="btn btn-primary" id="addExpenseBtn">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Add Expense
+      </button>
+    </div>
+
+    <div class="detail-page">
+      <div class="fin-stat-grid">
+        <div class="fin-stat-card"><div class="dlabel">Total Revenue</div><div class="dvalue mono" id="fs_revenue"></div></div>
+        <div class="fin-stat-card"><div class="dlabel">Paid</div><div class="dvalue mono" id="fs_paid" style="color:var(--chartreuse-text);"></div></div>
+        <div class="fin-stat-card">
+          <div class="dlabel">Pending / Overdue</div>
+          <div style="display:flex; gap:10px; align-items:baseline;">
+            <span class="dvalue mono" id="fs_pending" style="font-size:16px; color:#E6A23C;"></span>
+            <span class="dvalue mono" id="fs_overdue" style="font-size:16px; color:var(--crimson-text);"></span>
+          </div>
+        </div>
+        <div class="fin-stat-card"><div class="dlabel">Total Expenses</div><div class="dvalue mono" id="fs_expenses" style="color:var(--crimson-text);"></div></div>
+        <div class="fin-stat-card fin-hero"><div class="dlabel">Net Profit</div><div class="dvalue mono" id="fs_netprofit"></div><div class="fin-margin" id="fs_margin"></div></div>
+      </div>
+
+      <div class="fin-columns">
+        <div class="detail-card">
+          <div class="fin-card-head">
+            <div>
+              <h3 style="margin-bottom:2px;">Expenses</h3>
+              <div class="fin-subtext">Track and manage your business expenses.</div>
+            </div>
+            <div id="expenseCategoryFilterMount"></div>
+          </div>
+          <div id="expenseList"></div>
+          <div class="fin-category-head">By Category</div>
+          <div class="fin-subtext" style="margin-bottom:10px;">Total spend by category.</div>
+          <div id="categoryBreakdown"></div>
+        </div>
+
+        <div class="detail-card">
+          <h3>Revenue by Client</h3>
+          <div class="fin-subtext" style="margin-bottom:12px;">Deal value and invoice status by client.</div>
+          <div id="revenueByClient"></div>
+          <div class="fin-insight" id="finInsight"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="overlay" id="addExpenseOverlay">
+    <div class="modal-panel">
+      <div class="modal-head" style="border-bottom:0;">
+        <div class="modal-head-left"></div>
+        <div class="modal-title-block"><h2 class="headline" id="expenseModalTitle">Add Expense</h2></div>
+        <span class="close-x" id="closeAddExpense">✕</span>
+      </div>
+      <div class="step-body" style="padding-top:0;">
+        <div class="field"><label>Description *</label><input type="text" id="e_desc" placeholder="e.g. Figma Professional"></div>
+        <div class="field"><label>Category</label><div id="expenseCategoryFieldMount"></div></div>
+        <div class="field-row">
+          <div class="field" style="flex:1;"><label>Amount</label><input type="number" id="e_amount" placeholder="0.00"></div>
+          <div class="field" style="flex:1;"><label>Date</label><input type="date" id="e_date"></div>
+        </div>
+        <div class="field toggle-field">
+          <label style="display:flex; align-items:center; justify-content:space-between; margin-bottom:0;">
+            <span>Recurring Monthly?</span>
+            <span class="switch" id="expenseRecurringToggle"><span class="switch-knob"></span></span>
+          </label>
+          <div class="fin-subtext" style="margin-top:14px;">Repeats automatically each month.</div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" id="cancelAddExpense">Cancel</button>
+        <button class="btn btn-primary" id="saveExpenseBtn">Add Expense</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="dashboardPage" style="display:none;">
+    <div class="page-header" style="align-items:flex-start;">
+      <div>
+        <h1 class="headline" id="dashGreeting">Good morning, Jordan.</h1>
+        <p>Here's where things stand today.</p>
+        <div class="dash-quick-pills">
+          <button class="dash-pill" id="dashAddClient">+ Client</button>
+          <button class="dash-pill" id="dashAddTask">+ Task</button>
+          <button class="dash-pill" id="dashAddComm">+ Communication</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="detail-page">
+      <div class="dash-analytics-row">
+        <div class="detail-card">
+          <div class="fin-card-head">
+            <div class="dash-eyebrow">Client Pipeline</div>
+            <span class="dash-viewall" id="dashViewClients">View all →</span>
+          </div>
+          <div class="dash-big-stat"><span id="dash_totalClients"></span> <span class="dash-big-stat-label">total clients</span></div>
+          <div class="pipeline-bar" id="pipelineBar"></div>
+          <div class="pipeline-legend" id="pipelineLegend"></div>
+        </div>
+
+        <div class="detail-card">
+          <div class="fin-card-head">
+            <div class="dash-eyebrow">Task Completion</div>
+            <span class="dash-viewall" id="dashViewTasks">View all →</span>
+          </div>
+          <div class="dash-big-stat"><span id="dash_dueToday"></span> <span class="dash-big-stat-label">due today</span></div>
+          <div class="chart-legend">
+            <span><span class="dot" style="background:var(--cobalt)"></span>Completed</span>
+            <span><span class="dot" style="background:var(--crimson)"></span>Overdue</span>
+            <span style="margin-left:auto; color:var(--slate);">Hover a bar for exact counts</span>
+          </div>
+          <div class="mini-chart" id="taskChart"></div>
+        </div>
+      </div>
+
+      <div class="dash-board-head">
+        <div>
+          <div class="dash-eyebrow">Your Dashboard</div>
+          <div class="fin-subtext">A quick overview of what needs your focus.</div>
+        </div>
+      </div>
+
+      <div class="widget-grid" id="widgetGrid">
+        <div class="detail-card widget-card" id="widget-attention" data-widget="attention">
+          <div class="fin-card-head">
+            <div class="dash-eyebrow">Attention Needed</div>
+            <span class="count-badge" id="dash_attnCount">0</span>
+          </div>
+          <div class="fin-subtext" style="margin-bottom:10px;">Items that need your attention.</div>
+          <div id="attentionList"></div>
+        </div>
+
+        <div class="detail-card widget-card" id="widget-health" data-widget="health">
+          <div class="dash-tabs">
+            <button class="dash-tab active" data-dashtab="health">Client Health</button>
+            <button class="dash-tab" data-dashtab="activity">Recent Activity</button>
+          </div>
+          <div id="dashHealthPane"></div>
+          <div id="dashActivityPane" style="display:none;"></div>
+        </div>
+
+        <div class="widget-card sticky-note" id="widget-notes" data-widget="notes">
+          <div class="dash-eyebrow" style="color:#6b5a1a;">Quick Notes</div>
+          <div class="fin-subtext" style="margin-bottom:10px; color:#8a752f;">Jot down anything — auto-saved.</div>
+          <textarea class="dash-notes" id="dashNotes" placeholder="Ideas, reminders, anything on your mind..."></textarea>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="settingsPage" style="display:none;">
+    <div class="page-header">
+      <div>
+        <h1 class="headline">Settings</h1>
+        <p>Manage your profile, data, and device sync.</p>
+      </div>
+    </div>
+
+    <div class="detail-page" style="padding-top:var(--space-6);">
+      <div class="settings-row">
+        <div class="settings-icon">👤</div>
+        <div class="settings-main">
+          <h3>Profile</h3>
+          <div class="fin-subtext" style="margin-bottom:14px;">Update your personal information.</div>
+          <div style="display:flex; gap:10px; max-width:460px; align-items:flex-start;">
+            <div class="field" style="flex:1; margin-top:0;"><input type="text" id="settingsName" placeholder="Your name"></div>
+            <button class="btn btn-primary" id="settingsSaveName">Save</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="settings-row">
+        <div class="settings-icon">🗄️</div>
+        <div class="settings-main">
+          <h3>Your Data</h3>
+          <div class="fin-subtext" style="margin-bottom:14px;">Import, export, or delete your CRM data.</div>
+
+          <div class="settings-item">
+            <div class="settings-item-icon">⬆️</div>
+            <div class="settings-item-text"><strong>Export Data</strong><span>Download a backup of everything</span></div>
+            <button class="btn btn-secondary" id="settingsExportBtn">Export</button>
+          </div>
+          <div class="settings-item">
+            <div class="settings-item-icon">⬇️</div>
+            <div class="settings-item-text"><strong>Import Data</strong><span>Restore from a backup file</span></div>
+            <button class="btn btn-secondary" id="settingsImportBtn">Import</button>
+            <input type="file" id="settingsImportFile" accept="application/json" style="display:none;">
+          </div>
+          <div class="settings-item">
+            <div class="settings-item-icon" style="background:var(--crimson-soft); color:var(--crimson-text);">🗑️</div>
+            <div class="settings-item-text"><strong>Delete All Data</strong><span>Permanently erase everything — cannot be undone</span></div>
+            <button class="btn btn-secondary" id="settingsDeleteBtn" style="border-color:var(--crimson); color:var(--crimson-text);">Delete</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="settings-row">
+        <div class="settings-icon">💻</div>
+        <div class="settings-main">
+          <h3>Device Sync</h3>
+          <div class="fin-subtext" style="margin-bottom:14px;">Sync your data across devices.</div>
+
+          <div class="sync-status" id="syncStatus">
+            <span class="sync-dot"></span><span id="syncStatusText">Not synced to any device</span>
+          </div>
+
+          <div class="dash-tabs" style="margin-top:14px;">
+            <button class="dash-tab active" data-synctab="generate">Generate Code</button>
+            <button class="dash-tab" data-synctab="enter">Enter Code</button>
+          </div>
+
+          <div id="syncGeneratePane">
+            <div class="fin-subtext" style="margin:10px 0;">Generate a code and enter it on your other device to sync your data.</div>
+            <div class="code-display" id="codeDisplay" style="display:none;">
+              <span class="code-digits" id="codeDigits"></span>
+              <button class="btn btn-secondary" id="copyCodeBtn">📋 Copy</button>
+            </div>
+            <button class="btn btn-primary" id="generateCodeBtn" style="width:100%; margin-top:10px;">Generate Code</button>
+          </div>
+
+          <div id="syncEnterPane" style="display:none;">
+            <div class="fin-subtext" style="margin:10px 0;">Enter the code from your other device to link this one.</div>
+            <div class="code-inputs-row">
+              <input type="text" class="code-input" maxlength="1" inputmode="numeric">
+              <input type="text" class="code-input" maxlength="1" inputmode="numeric">
+              <input type="text" class="code-input" maxlength="1" inputmode="numeric">
+              <input type="text" class="code-input" maxlength="1" inputmode="numeric">
+              <input type="text" class="code-input" maxlength="1" inputmode="numeric">
+              <input type="text" class="code-input" maxlength="1" inputmode="numeric">
+            </div>
+            <button class="btn btn-primary" id="connectCodeBtn" style="width:100%;">Connect</button>
+          </div>
+
+          <button class="btn btn-secondary" id="unlinkBtn" style="display:none; margin-top:14px;">Unlink This Device</button>
+        </div>
+      </div>
+
+      <div class="settings-row">
+        <div class="settings-icon">🎨</div>
+        <div class="settings-main">
+          <h3>Appearance</h3>
+          <div class="fin-subtext" style="margin-bottom:14px;">Customize your app experience.</div>
+          <div style="display:flex; align-items:center; justify-content:space-between; max-width:460px;">
+            <span style="font-size:13px; color:var(--ink-dim);">Theme — choose between light and dark mode.</span>
+            <span class="switch" id="settingsThemeToggle"><span class="switch-knob"></span></span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="guidePage" style="display:none;">
+    <div class="page-header">
+      <div>
+        <h1 class="headline">Welcome to Semestra Clientflow</h1>
+        <p>A few quick things before you dive in.</p>
+      </div>
+    </div>
+
+    <div class="detail-page" style="padding-top:var(--space-6);">
+      <div class="settings-row">
+        <div class="settings-icon">🚀</div>
+        <div class="settings-main">
+          <h3>Quick Start</h3>
+          <div class="fin-subtext" style="margin-bottom:16px;">Follow these steps to get the most out of Semestra Clientflow.</div>
+
+          <div class="guide-step guide-step-danger">
+            <span class="guide-num guide-num-danger">1</span>
+            <div class="guide-step-text">
+              <strong>⚠ Clear the sample data</strong>
+              <span>This app comes pre-loaded with sample data so you can explore it. Delete it before adding your own.</span>
+            </div>
+            <span class="dash-viewall" id="guideGoSettings" style="white-space:nowrap;">Go to Settings →</span>
+          </div>
+          <div class="guide-step">
+            <span class="guide-num">2</span>
+            <div class="guide-step-text"><strong>Add your first client</strong><span>Start with a name — you can fill in details later.</span></div>
+          </div>
+          <div class="guide-step">
+            <span class="guide-num">3</span>
+            <div class="guide-step-text"><strong>Create a task</strong><span>Link it to a client and set a due date.</span></div>
+          </div>
+          <div class="guide-step">
+            <span class="guide-num">4</span>
+            <div class="guide-step-text"><strong>Log a conversation</strong><span>Keep every call, email, and meeting in one place.</span></div>
+          </div>
+          <div class="guide-step">
+            <span class="guide-num">5</span>
+            <div class="guide-step-text"><strong>Check your Dashboard</strong><span>See what needs your attention, at a glance.</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="settings-row">
+        <div class="settings-icon">⌨️</div>
+        <div class="settings-main">
+          <h3>Command Bar Cheat Sheet</h3>
+          <div class="fin-subtext" style="margin-bottom:16px;">Work faster with keyboard shortcuts.</div>
+          <p style="font-size:13px; color:var(--ink-dim); margin-bottom:16px; line-height:1.6;">This app has no sidebar — everything happens through the Command Bar. Press <kbd class="guide-kbd">⌘K</kbd> (or click the search pill) to open it anytime.</p>
+          <div class="guide-shortcut-grid">
+            <div class="guide-shortcut"><kbd class="guide-kbd">⌘0</kbd><span>Jump to Dashboard</span></div>
+            <div class="guide-shortcut"><kbd class="guide-kbd">⌘3</kbd><span>Log Communication</span></div>
+            <div class="guide-shortcut"><kbd class="guide-kbd">⌘1</kbd><span>Add Client</span></div>
+            <div class="guide-shortcut"><kbd class="guide-kbd">⌘4</kbd><span>Add Expense</span></div>
+            <div class="guide-shortcut"><kbd class="guide-kbd">⌘2</kbd><span>Add Task</span></div>
+            <div class="guide-shortcut"><kbd class="guide-kbd">⌘5–⌘9</kbd><span>Jump to Clients / Tasks / Communications / Financials / Settings</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="settings-row">
+        <div class="settings-icon">❓</div>
+        <div class="settings-main">
+          <h3>FAQ</h3>
+          <div class="fin-subtext" style="margin-bottom:16px;">Common questions, answered.</div>
+          <div class="guide-faq">
+            <strong>Where is my data stored?</strong>
+            <span>Locally in your browser, and optionally synced across devices with a 6-digit code.</span>
+          </div>
+          <div class="guide-faq">
+            <strong>How do I sync a second device?</strong>
+            <span>Go to Settings → Device Sync, generate a code, and enter it on your other device.</span>
+          </div>
+          <div class="guide-faq">
+            <strong>Can I export my data?</strong>
+            <span>Yes — Settings → Your Data → Export, anytime.</span>
+          </div>
+        </div>
+      </div>
+
+      <button class="btn btn-primary" id="getStartedBtn" style="width:100%; padding:16px; font-size:15px;">Get Started →</button>
+    </div>
+  </div>
+
+  <div class="overlay" id="confirmOverlay">
+    <div class="confirm-panel">
+      <div class="confirm-icon">!</div>
+      <h3 id="confirmTitle">Are you sure?</h3>
+      <p id="confirmMessage">This action cannot be undone.</p>
+      <div class="confirm-actions">
+        <button class="btn btn-secondary" id="confirmCancel">Cancel</button>
+        <button class="btn btn-danger" id="confirmOk">Delete</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"><span class="dot"></span><span id="toastMsg"></span></div>
+
+<script>
+/* ===================== Custom Select Component ===================== */
+/* Replaces native <select> with a styled dropdown matching the design system. */
+function createXSelect({ mountEl, options, value, placeholder, blockStyle, fieldStyle, onChange }){
+  let current = value || '';
+  const wrap = document.createElement('div');
+  wrap.className = 'xselect' + (blockStyle ? ' block' : '') + (fieldStyle ? ' field-style' : '');
+
+  const btn = document.createElement('div');
+  btn.className = 'xselect-btn';
+  btn.innerHTML = `<span class="xselect-label"></span>
+    <svg class="chev" width="10" height="6" viewBox="0 0 10 6" fill="none"><path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.6"/></svg>`;
+  const labelEl = btn.querySelector('.xselect-label');
+
+  const panel = document.createElement('div');
+  panel.className = 'xselect-panel';
+
+  function renderLabel(){
+    const found = options.find(o => o.value === current);
+    if(found && found.dot){
+      labelEl.innerHTML = `<span class="opt-dot" style="background:${found.dot}"></span>${found.label}`;
+    } else {
+      labelEl.textContent = found ? found.label : (placeholder || 'Select...');
+    }
+  }
+  function renderOptions(){
+    panel.innerHTML = '';
+    options.forEach(o => {
+      const item = document.createElement('div');
+      item.className = 'xselect-opt' + (o.value === current ? ' selected' : '');
+      item.innerHTML = o.dot ? `<span class="opt-dot" style="background:${o.dot}"></span>${o.label}` : o.label;
+      item.addEventListener('click', (e) => {
+        e.stopPropagation();
+        current = o.value;
+        renderLabel();
+        renderOptions();
+        close();
+        if(onChange) onChange(current);
+      });
+      panel.appendChild(item);
+    });
+  }
+  function open(){
+    document.querySelectorAll('.xselect.open').forEach(el => el !== wrap && el.classList.remove('open'));
+    wrap.classList.add('open');
+  }
+  function close(){ wrap.classList.remove('open'); }
+  btn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    wrap.classList.contains('open') ? close() : open();
+  });
+
+  wrap.appendChild(btn);
+  wrap.appendChild(panel);
+  mountEl.appendChild(wrap);
+  renderLabel();
+  renderOptions();
+
+  return {
+    get value(){ return current; },
+    set value(v){ current = v; renderLabel(); renderOptions(); },
+    el: wrap
+  };
+}
+document.addEventListener('click', () => {
+  document.querySelectorAll('.xselect.open').forEach(el => el.classList.remove('open'));
+});
+
+/* ===================== Data ===================== */
+/* ===================== Theme (dark default, light optional) ===================== */
+const THEME_KEY = 'semestraClientflow_theme';
+function applyTheme(theme){
+  document.body.classList.toggle('light-theme', theme === 'light');
+  document.getElementById('themeIconMoon').style.display = theme === 'light' ? 'none' : 'block';
+  document.getElementById('themeIconSun').style.display = theme === 'light' ? 'block' : 'none';
+  localStorage.setItem(THEME_KEY, theme);
+}
+applyTheme(localStorage.getItem(THEME_KEY) || 'light');
+document.getElementById('themeToggle').addEventListener('click', () => {
+  const isLight = document.body.classList.contains('light-theme');
+  applyTheme(isLight ? 'dark' : 'light');
+});
+
+/* ===================== Data ===================== */
+/* Safely pings the device-sync module (if loaded) whenever local data changes. */
+function notifySync(){
+  if(window.SemestraSync) window.SemestraSync.triggerSync();
+}
+
+const STORAGE_KEY = 'semestraClientflow_clients_v2';
+const AVATAR_COLORS = ['#4C6EF5','#A3D65C','#9B7EDE','#E6A23C','#E23A5D','#3FB6A8','#D9648C','#8C8B96'];
+
+function loadClients(){
+  const raw = localStorage.getItem(STORAGE_KEY);
+  if(raw){
+    const list = JSON.parse(raw);
+    let patched = false;
+    list.forEach(c => {
+      if(!c.lastContactAt){ c.lastContactAt = Date.now(); patched = true; }
+      if(!c.createdAt){ c.createdAt = c.lastContactAt; patched = true; }
+    });
+    if(patched) saveClients(list);
+    return list;
+  }
+  const now = Date.now();
+  const daysAgo = d => now - d*24*60*60*1000;
+  const demo = [
+    {id:1,name:'Alpine Creative Co.',contact:'Sarah Chen',email:'sarah@alpinecreative.co',phone:'(415) 555-0148',website:'alpinecreative.co',project:'Brand & Web Design',industry:'Creative Agency',status:'Active',priority:'High',deal:12480,payment:'Bank Transfer',invoiceStatus:'Paid',source:'Referral',startDate:'2025-11-02',notes:'Prefers async updates over calls.',lastContactAt:daysAgo(2),createdAt:daysAgo(90)},
+    {id:2,name:'Nova Build Studios',contact:'Marcus Taylor',email:'marcus@novabuild.com',phone:'(206) 555-0122',website:'novabuildstudios.com',project:'Construction & Renovation',industry:'Construction',status:'Active',priority:'Very High',deal:28500,payment:'Bank Transfer',invoiceStatus:'Overdue',source:'Website',startDate:'2025-06-14',notes:'Big account — handle with priority.',lastContactAt:daysAgo(12),createdAt:daysAgo(140),overdue:true},
+    {id:3,name:'Lumen Studio',contact:'Priya Patel',email:'priya@lumenstudio.io',phone:'(312) 555-0177',website:'lumenstudio.io',project:'Marketing & Branding',industry:'Marketing',status:'Active',priority:'Medium',deal:8320,payment:'Stripe',invoiceStatus:'Paid',source:'Social Media',startDate:'2025-12-10',notes:'',lastContactAt:daysAgo(5),createdAt:daysAgo(60)},
+    {id:4,name:'Riverside Health',contact:'Dr. James Wilson',email:'jwilson@riversidehealth.org',phone:'(503) 555-0110',website:'',project:'Healthcare Consulting',industry:'Healthcare',status:'On Hold',priority:'Low',deal:15000,payment:'Bank Transfer',invoiceStatus:'Pending',source:'Referral',startDate:'2025-03-01',notes:'Paused project until Q1 budget approval.',lastContactAt:daysAgo(21),createdAt:daysAgo(210)},
+    {id:5,name:'Greenfield Finance',contact:'Emily Rodriguez',email:'emily@greenfieldfinance.com',phone:'(646) 555-0199',website:'greenfieldfinance.com',project:'Financial Planning',industry:'Finance',status:'Active',priority:'Medium',deal:24000,payment:'PayPal',invoiceStatus:'Overdue',source:'Cold Outreach',startDate:'2025-10-18',notes:'',lastContactAt:daysAgo(28),createdAt:daysAgo(95),overdue:true},
+    {id:6,name:'Taylor & Co.',contact:'Alex Morgan',email:'alex@taylorandco.legal',phone:'(212) 555-0163',website:'taylorandco.legal',project:'Legal Services',industry:'Legal',status:'Prospect',priority:'High',deal:6750,payment:'',invoiceStatus:'Pending',source:'Referral',startDate:'',notes:'Waiting on their internal sign-off.',lastContactAt:daysAgo(7),createdAt:daysAgo(10)},
+    {id:7,name:'BrightPath Media',contact:'Daniel Kim',email:'daniel@brightpathmedia.com',phone:'(773) 555-0141',website:'brightpathmedia.com',project:'Content & Strategy',industry:'Media',status:'Active',priority:'Medium',deal:11200,payment:'Stripe',invoiceStatus:'Paid',source:'Website',startDate:'2025-09-22',notes:'',lastContactAt:daysAgo(3),createdAt:daysAgo(75)},
+    {id:8,name:'Summit Wellness',contact:'Rachel Nguyen',email:'rachel@summitwellness.co',phone:'(720) 555-0186',website:'summitwellness.co',project:'Wellness & Coaching',industry:'Health & Wellness',status:'Active',priority:'High',deal:9600,payment:'Cash',invoiceStatus:'Overdue',source:'Social Media',startDate:'2025-11-30',notes:'',lastContactAt:daysAgo(14),createdAt:daysAgo(50),overdue:true},
+    {id:9,name:'Meridian Legal Group',contact:'Frank Alvarez',email:'falvarez@meridianlegal.com',phone:'(214) 555-0129',website:'meridianlegal.com',project:'Corporate Website Redesign',industry:'Legal',status:'Completed',priority:'Low',deal:18900,payment:'Bank Transfer',invoiceStatus:'Paid',source:'Referral',startDate:'2025-01-15',notes:'Project wrapped — possible retainer later.',lastContactAt:daysAgo(45),createdAt:daysAgo(220)},
+    {id:10,name:'Coastal Realty Partners',contact:'Monica Diaz',email:'monica@coastalrealtypartners.com',phone:'(619) 555-0155',website:'',project:'Listing Site & CRM Setup',industry:'Real Estate',status:'Prospect',priority:'Medium',deal:5400,payment:'',invoiceStatus:'Pending',source:'Cold Outreach',startDate:'',notes:'',lastContactAt:daysAgo(1),createdAt:daysAgo(4)},
+    {id:11,name:'Silverline Consulting',contact:'Grace Liu',email:'grace@silverlineconsulting.com',phone:'(617) 555-0134',website:'silverlineconsulting.com',project:'Ops Dashboard Build',industry:'Consulting',status:'Active',priority:'Very High',deal:32000,payment:'Bank Transfer',invoiceStatus:'Paid',source:'Referral',startDate:'2025-08-04',notes:'Long-term retainer client.',lastContactAt:daysAgo(6),createdAt:daysAgo(130)},
+    {id:12,name:'Bloom District Florals',contact:'Isabelle Moreau',email:'isabelle@bloomdistrict.com',phone:'(305) 555-0117',website:'bloomdistrict.com',project:'E-commerce Storefront',industry:'Retail',status:'On Hold',priority:'Low',deal:4200,payment:'PayPal',invoiceStatus:'Pending',source:'Website',startDate:'2025-05-19',notes:'Waiting on their product photography.',lastContactAt:daysAgo(25),createdAt:daysAgo(160)},
+    {id:13,name:'Vertex Software Labs',contact:'Omar Farouk',email:'omar@vertexsoftware.dev',phone:'(408) 555-0172',website:'vertexsoftware.dev',project:'Marketing Site + Docs',industry:'Software',status:'Active',priority:'High',deal:19750,payment:'Stripe',invoiceStatus:'Overdue',source:'Social Media',startDate:'2025-10-01',notes:'',lastContactAt:daysAgo(19),createdAt:daysAgo(85),overdue:true},
+    {id:14,name:'Harbor Point Realty',contact:'Denise Carter',email:'denise@harborpointrealty.com',phone:'(910) 555-0161',website:'harborpointrealty.com',project:'Brand Refresh',industry:'Real Estate',status:'Completed',priority:'Medium',deal:13300,payment:'Bank Transfer',invoiceStatus:'Paid',source:'Referral',startDate:'2024-12-05',notes:'',lastContactAt:daysAgo(60),createdAt:daysAgo(250)},
+    {id:15,name:'Aria Fitness Studio',contact:'Ben Torres',email:'ben@ariafitness.com',phone:'(480) 555-0193',website:'ariafitness.com',project:'Booking Site & Branding',industry:'Fitness',status:'Active',priority:'Medium',deal:7850,payment:'Cash',invoiceStatus:'Paid',source:'Referral',startDate:'2025-12-28',notes:'',lastContactAt:daysAgo(4),createdAt:daysAgo(40)},
+    {id:16,name:'Northgate Logistics',contact:'Karen Wu',email:'karen@northgatelogistics.com',phone:'(972) 555-0108',website:'',project:'Internal Portal',industry:'Logistics',status:'Prospect',priority:'Low',deal:3000,payment:'',invoiceStatus:'Pending',source:'Cold Outreach',startDate:'',notes:'Early-stage conversation, low urgency.',lastContactAt:daysAgo(8),createdAt:daysAgo(15)},
+  ];
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(demo));
+  return demo;
+}
+function saveClients(list){ localStorage.setItem(STORAGE_KEY, JSON.stringify(list)); notifySync(); }
+
+/* Real "last contact" is derived from a stored timestamp (lastContactAt),
+   updated any time the client record is actually touched — added, edited,
+   or has its status changed. This computes the display text live so it
+   stays accurate as time passes, instead of a static hardcoded string. */
+function formatRelativeTime(ts){
+  if(!ts) return '—';
+  const diffMs = Date.now() - ts;
+  const mins = Math.floor(diffMs / 60000);
+  if(mins < 1) return 'Just now';
+  if(mins < 60) return mins + (mins===1 ? ' minute ago' : ' minutes ago');
+  const hours = Math.floor(mins/60);
+  if(hours < 24) return hours + (hours===1 ? ' hour ago' : ' hours ago');
+  const days = Math.floor(hours/24);
+  if(days < 30) return days + (days===1 ? ' day ago' : ' days ago');
+  const months = Math.floor(days/30);
+  return months + (months===1 ? ' month ago' : ' months ago');
+}
+
+/* Call this whenever a client record is actually interacted with
+   (editing fields, changing status, etc.) once those flows are built. */
+function touchClientContact(clientId){
+  const c = clients.find(x => x.id === clientId);
+  if(!c) return;
+  c.lastContactAt = Date.now();
+  saveClients(clients);
+  render();
+}
+
+let clients = loadClients();
+const PRIORITY_DOT = {Low:'#A3D65C', Medium:'#4C6EF5', High:'#E6A23C', 'Very High':'#E23A5D'};
+
+function statusPillClass(c){
+  if(c.overdue) return 'status-overdue';
+  if(c.status === 'Active') return 'status-active';
+  return 'status-neutral';
+}
+function statusLabel(c){ return c.overdue ? 'Overdue' : c.status; }
+function getInitials(name){
+  const words = name.trim().split(/\s+/).filter(Boolean);
+  if(words.length === 1) return words[0].slice(0,2).toUpperCase();
+  return (words[0][0] + words[1][0]).toUpperCase();
+}
+
+/* ===================== Filters (custom selects) ===================== */
+const statusFilterSelect = createXSelect({
+  mountEl: document.getElementById('statusFilterMount'),
+  options: [
+    {value:'', label:'All Statuses'},
+    {value:'Active', label:'Active'},
+    {value:'Prospect', label:'Prospect'},
+    {value:'On Hold', label:'On Hold'},
+    {value:'Completed', label:'Completed'},
+  ],
+  value:'', onChange: render
+});
+const priorityFilterSelect = createXSelect({
+  mountEl: document.getElementById('priorityFilterMount'),
+  options: [
+    {value:'', label:'All Priorities'},
+    {value:'Low', label:'Low'},
+    {value:'Medium', label:'Medium'},
+    {value:'High', label:'High'},
+    {value:'Very High', label:'Very High'},
+  ],
+  value:'', onChange: render
+});
+
+function render(){
+  const grid = document.getElementById('clientGrid');
+  const statusVal = statusFilterSelect.value;
+  const priorityVal = priorityFilterSelect.value;
+  const filtered = clients.filter(c =>
+    (!statusVal || c.status === statusVal) &&
+    (!priorityVal || c.priority === priorityVal)
+  );
+  document.getElementById('clientCount').textContent = filtered.length + ' client' + (filtered.length===1?'':'s');
+
+  grid.innerHTML = filtered.map((c) => {
+    const initials = getInitials(c.name);
+    const color = AVATAR_COLORS[c.id % AVATAR_COLORS.length];
+    return `
+    <div class="client-card" data-id="${c.id}">
+      <div class="card-top">
+        <div class="card-id">
+          <div class="card-avatar" style="background:${color}">${initials}</div>
+          <div class="names">
+            <h3>${c.name}</h3>
+            <div class="contact">${[c.contact, c.project].filter(Boolean).join(' · ') || '—'}</div>
+          </div>
+        </div>
+        <div class="card-menu">
+          <span class="menu-dot" data-menu-toggle>⋯</span>
+          <div class="card-menu-panel">
+            <div class="card-menu-item" data-menu-edit>Edit</div>
+            <div class="card-menu-item danger" data-menu-delete>Delete</div>
+          </div>
+        </div>
+      </div>
+      <div class="status-row">
+        <span class="status-pill ${statusPillClass(c)}">${statusLabel(c)}</span>
+      </div>
+      <div class="card-stats">
+        <div>Deal Value<strong class="mono">$${(c.deal||0).toLocaleString()}</strong></div>
+        <div>Last Contact<strong>${formatRelativeTime(c.lastContactAt)}</strong></div>
+        <div>Priority<strong><span class="priority-dot" style="background:${PRIORITY_DOT[c.priority]||'#8C8B96'}"></span>${c.priority||'—'}</strong></div>
+      </div>
+      <button class="btn btn-secondary view-details" data-view-details>View Details →</button>
+    </div>`;
+  }).join('');
+}
+
+/* ---- Card menu (⋯ Edit/Delete) + View Details, via event delegation ---- */
+const clientGridEl = document.getElementById('clientGrid');
+clientGridEl.addEventListener('click', (e) => {
+  const card = e.target.closest('.client-card');
+  if(!card) return;
+  const id = parseInt(card.dataset.id, 10);
+
+  if(e.target.closest('[data-menu-toggle]')){
+    e.stopPropagation();
+    const panel = card.querySelector('.card-menu-panel');
+    const wasOpen = panel.classList.contains('open');
+    document.querySelectorAll('.card-menu-panel.open').forEach(p => p.classList.remove('open'));
+    if(!wasOpen) panel.classList.add('open');
+    return;
+  }
+  if(e.target.closest('[data-menu-edit]')){
+    card.querySelector('.card-menu-panel').classList.remove('open');
+    const client = clients.find(c => c.id === id);
+    if(client) openAddClientModal(client);
+    return;
+  }
+  if(e.target.closest('[data-menu-delete]')){
+    card.querySelector('.card-menu-panel').classList.remove('open');
+    const client = clients.find(c => c.id === id);
+    if(client) deleteClient(client);
+    return;
+  }
+  if(e.target.closest('[data-view-details]')){
+    const client = clients.find(c => c.id === id);
+    if(client) openClientDetailPage(client);
+    return;
+  }
+});
+document.addEventListener('click', () => {
+  document.querySelectorAll('.card-menu-panel.open').forEach(p => p.classList.remove('open'));
+});
+
+/* ---- Client Detail (full page) ---- */
+const clientDetailPage = document.getElementById('clientDetailPage');
+let detailClientId = null;
+
+function formatDate(ts){
+  if(!ts) return '—';
+  return new Date(ts).toLocaleDateString(undefined, { month:'short', day:'numeric', year:'numeric' });
+}
+function setRow(elId, value, isLink){
+  const el = document.getElementById(elId);
+  if(value){
+    el.innerHTML = isLink ? `<a href="https://${value.replace(/^https?:\/\//,'')}" target="_blank" rel="noopener">${value}</a>` : value;
+    el.classList.remove('muted');
+  } else {
+    el.textContent = '—';
+    el.classList.add('muted');
+  }
+}
+
+/* ---- Shared page router (Clients list / Client Detail / Tasks) ---- */
+let currentPage = 'dashboard';
+function hideAllTopPages(){
+  document.getElementById('pageWrap').style.display = 'none';
+  document.getElementById('clientDetailPage').style.display = 'none';
+  document.getElementById('tasksPage').style.display = 'none';
+  document.getElementById('commsPage').style.display = 'none';
+  document.getElementById('financialsPage').style.display = 'none';
+  document.getElementById('dashboardPage').style.display = 'none';
+  document.getElementById('settingsPage').style.display = 'none';
+  document.getElementById('guidePage').style.display = 'none';
+}
+function showClientsPage(){
+  currentPage = 'clients';
+  hideAllTopPages();
+  document.getElementById('pageWrap').style.display = 'block';
+  window.scrollTo({top:0, behavior:'instant'});
+}
+
+function openClientDetailPage(client){
+  detailClientId = client.id;
+
+  hideAllTopPages();
+  clientDetailPage.style.display = 'block';
+
+  const initials = getInitials(client.name);
+  const color = AVATAR_COLORS[client.id % AVATAR_COLORS.length];
+  document.getElementById('dp_avatar').textContent = initials;
+  document.getElementById('dp_avatar').style.background = color;
+  document.getElementById('dp_name').textContent = client.name;
+  document.getElementById('dp_sub').textContent = [client.contact, client.project].filter(Boolean).join(' · ') || 'No contact info yet';
+  document.getElementById('dp_status').innerHTML = `<span class="status-pill ${statusPillClass(client)}">${statusLabel(client)}</span>`;
+  const pEl = document.getElementById('dp_priority');
+  pEl.innerHTML = `<span class="priority-dot" style="background:${PRIORITY_DOT[client.priority]||'#8C8B96'}"></span>${client.priority || '—'} Priority`;
+
+  document.getElementById('dp_deal').textContent = '$' + (client.deal||0).toLocaleString();
+  setRow('dp_invoice', client.invoiceStatus);
+  document.getElementById('dp_since').textContent = formatDate(client.createdAt);
+  document.getElementById('dp_lastcontact').textContent = formatRelativeTime(client.lastContactAt);
+
+  setRow('dp_contact', client.contact);
+  setRow('dp_email', client.email);
+  setRow('dp_phone', client.phone);
+  setRow('dp_website', client.website, true);
+  setRow('dp_industry', client.industry);
+  setRow('dp_source', client.source);
+
+  setRow('dp_project', client.project);
+  setRow('dp_payment', client.payment);
+  setRow('dp_start', client.startDate);
+  document.getElementById('dp_priorityrow').innerHTML = `<span class="priority-dot" style="background:${PRIORITY_DOT[client.priority]||'#8C8B96'}"></span>${client.priority || '—'}`;
+
+  const notesEl = document.getElementById('dp_notes');
+  notesEl.textContent = client.notes ? client.notes : 'No notes added yet.';
+
+  window.scrollTo({top:0, behavior:'instant'});
+}
+function closeClientDetailPage(){
+  showClientsPage();
+  detailClientId = null;
+}
+document.getElementById('detailBackBtn').addEventListener('click', closeClientDetailPage);
+document.getElementById('dp_logCommBtn').addEventListener('click', ()=>{
+  openAddCommModal(undefined, detailClientId);
+});
+document.getElementById('dp_editBtn').addEventListener('click', ()=>{
+  const client = clients.find(c => c.id === detailClientId);
+  if(client) openAddClientModal(client);
+});
+document.getElementById('dp_deleteBtn').addEventListener('click', ()=>{
+  const client = clients.find(c => c.id === detailClientId);
+  if(!client) return;
+  openConfirm(
+    'Delete this client?',
+    `"${client.name}" and all of its data will be permanently removed. This cannot be undone.`,
+    () => {
+      clients = clients.filter(c => c.id !== client.id);
+      saveClients(clients);
+      render();
+      closeClientDetailPage();
+      showToast('Client deleted');
+    }
+  );
+});
+
+function deleteClient(client){
+  openConfirm(
+    'Delete this client?',
+    `"${client.name}" and all of its data will be permanently removed. This cannot be undone.`,
+    () => {
+      clients = clients.filter(c => c.id !== client.id);
+      saveClients(clients);
+      render();
+      showToast('Client deleted');
+    }
+  );
+}
+
+/* ===================== Tasks ===================== */
+const TASKS_STORAGE_KEY = 'semestraClientflow_tasks_v2';
+
+function loadTasks(){
+  const raw = localStorage.getItem(TASKS_STORAGE_KEY);
+  if(raw) return JSON.parse(raw);
+  const now = Date.now();
+  const daysFromNow = d => { const dt = new Date(); dt.setDate(dt.getDate()+d); return dt.toISOString().slice(0,10); };
+  const daysAgoTs = d => now - d*24*60*60*1000;
+  const demo = [
+    // Overdue (not completed, due date in the past)
+    {id:1, name:'Follow up on invoice', description:'Second follow-up on overdue invoice #1042', clientId:5, dueDate:daysFromNow(-2), priority:'High', completed:false, completedAt:null, createdAt:daysAgoTs(6)},
+    {id:2, name:'Schedule strategy call', description:'Discuss Q2 goals and roadmap', clientId:5, dueDate:daysFromNow(-1), priority:'Very High', completed:false, completedAt:null, createdAt:daysAgoTs(5)},
+    {id:3, name:'Send contract for signature', description:'Final version ready to send', clientId:13, dueDate:daysFromNow(-1), priority:'High', completed:false, completedAt:null, createdAt:daysAgoTs(4)},
+    {id:4, name:'Chase overdue payment', description:'Second reminder — 30 days past due', clientId:8, dueDate:daysFromNow(-4), priority:'Very High', completed:false, completedAt:null, createdAt:daysAgoTs(10)},
+    // Due today
+    {id:5, name:'Send project proposal', description:'Finalize and send updated proposal', clientId:1, dueDate:daysFromNow(0), priority:'High', completed:false, completedAt:null, createdAt:daysAgoTs(3)},
+    {id:6, name:'Client onboarding call', description:'Initial kickoff call and introduce team', clientId:10, dueDate:daysFromNow(0), priority:'Medium', completed:false, completedAt:null, createdAt:daysAgoTs(2)},
+    {id:7, name:'Review design assets', description:'Provide feedback on latest visual designs', clientId:3, dueDate:daysFromNow(0), priority:'Medium', completed:false, completedAt:null, createdAt:daysAgoTs(1)},
+    // Upcoming
+    {id:8, name:'Prepare monthly report', description:'Compile last month performance report', clientId:6, dueDate:daysFromNow(3), priority:'Medium', completed:false, completedAt:null, createdAt:daysAgoTs(2)},
+    {id:9, name:'Update project timeline', description:'Share revised timeline with client', clientId:1, dueDate:daysFromNow(5), priority:'Low', completed:false, completedAt:null, createdAt:daysAgoTs(3)},
+    {id:10, name:'Send welcome package', description:'Send client resources and next steps', clientId:15, dueDate:daysFromNow(6), priority:'Low', completed:false, completedAt:null, createdAt:daysAgoTs(1)},
+    {id:11, name:'Plan next phase', description:'Align on next phase of work', clientId:2, dueDate:daysFromNow(8), priority:'Medium', completed:false, completedAt:null, createdAt:daysAgoTs(4)},
+    {id:12, name:'Kickoff call with new client', description:'Intro call after signed proposal', clientId:6, dueDate:daysFromNow(9), priority:'High', completed:false, completedAt:null, createdAt:daysAgoTs(2)},
+    {id:13, name:'Draft ops dashboard wireframes', description:'First pass on layout for review', clientId:11, dueDate:daysFromNow(11), priority:'Medium', completed:false, completedAt:null, createdAt:daysAgoTs(5)},
+    {id:14, name:'Vendor photo shoot reminder', description:'Confirm shoot date with client', clientId:12, dueDate:daysFromNow(14), priority:'Low', completed:false, completedAt:null, createdAt:daysAgoTs(3)},
+    {id:15, name:'Prep quarterly check-in', description:'Review renewal terms ahead of call', clientId:11, dueDate:daysFromNow(20), priority:'Medium', completed:false, completedAt:null, createdAt:daysAgoTs(6)},
+    // Completed, spread across the past ~6 weeks (for the Task Completion chart)
+    {id:16, name:'Kickoff call', description:'Initial project kickoff', clientId:1, dueDate:daysFromNow(-88), priority:'Medium', completed:true, completedAt:daysAgoTs(88), createdAt:daysAgoTs(90)},
+    {id:17, name:'Deliver brand moodboard', description:'First concept round', clientId:1, dueDate:daysFromNow(-70), priority:'Medium', completed:true, completedAt:daysAgoTs(69), createdAt:daysAgoTs(72)},
+    {id:18, name:'Sign contract', description:'Silverline retainer agreement', clientId:11, dueDate:daysFromNow(-58), priority:'High', completed:true, completedAt:daysAgoTs(57), createdAt:daysAgoTs(60)},
+    {id:19, name:'Initial site audit', description:'Vertex marketing site audit', clientId:13, dueDate:daysFromNow(-40), priority:'Medium', completed:true, completedAt:daysAgoTs(39), createdAt:daysAgoTs(42)},
+  ];
+
+  // Densely populate the visible 6-week Task Completion window (days 1-41 ago) so the chart reads clearly.
+  const recentDoneTemplates = [
+    {name:'Weekly status update', desc:'Progress recap email'},
+    {name:'Send invoice', desc:'Milestone billing sent'},
+    {name:'Logo revisions', desc:'Client-requested changes'},
+    {name:'Content review', desc:'Reviewed latest draft'},
+    {name:'Bug fix deployed', desc:'Resolved a reported issue'},
+    {name:'Client check-in call', desc:'Quick progress sync'},
+    {name:'Publish site update', desc:'Pushed latest changes live'},
+    {name:'Send welcome package', desc:'Onboarding materials'},
+  ];
+  const recentDoneClients = [1, 3, 7, 11, 13, 15, 2, 6, 9, 5];
+  const recentDoneOffsets = [1, 3, 5, 8, 10, 12, 15, 17, 19, 22, 24, 26, 29, 31, 33, 36, 38, 40];
+  let nextId = 20;
+  recentDoneOffsets.forEach((d, i) => {
+    const tmpl = recentDoneTemplates[i % recentDoneTemplates.length];
+    demo.push({
+      id: nextId++,
+      name: tmpl.name,
+      description: tmpl.desc,
+      clientId: recentDoneClients[i % recentDoneClients.length],
+      dueDate: daysFromNow(-(d+1)),
+      priority: ['Low','Medium','High'][i % 3],
+      completed: true,
+      completedAt: daysAgoTs(d),
+      createdAt: daysAgoTs(d+2),
+    });
+  });
+  localStorage.setItem(TASKS_STORAGE_KEY, JSON.stringify(demo));
+  return demo;
+}
+function saveTasks(list){ localStorage.setItem(TASKS_STORAGE_KEY, JSON.stringify(list)); notifySync(); }
+
+let tasks = loadTasks();
+let activeTaskTab = 'active';
+let editingTaskId = null;
+
+function clientById(id){ return clients.find(c => c.id === id); }
+function clientColor(id){ return AVATAR_COLORS[id % AVATAR_COLORS.length]; }
+
+function todayISO(){
+  const d = new Date();
+  return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+}
+function daysBetween(dateISO){
+  const a = new Date(todayISO());
+  const b = new Date(dateISO);
+  return Math.round((b - a) / (1000*60*60*24));
+}
+function formatDueLabel(dateISO){
+  if(!dateISO) return 'No due date';
+  const diff = daysBetween(dateISO);
+  if(diff === 0) return 'Today';
+  if(diff < 0) return Math.abs(diff) + (diff === -1 ? ' day overdue' : ' days overdue');
+  return 'Due ' + new Date(dateISO).toLocaleDateString(undefined, {month:'short', day:'numeric'});
+}
+
+/* Task filters (client + priority use the custom select component; date range narrows Upcoming only).
+   taskClientFilter is declared with `let` and fully REASSIGNED (not merged) whenever the client list
+   changes, because createXSelect's `value` is a closures-based accessor — merging via Object.assign
+   would silently keep the old getter/setter bound to DOM that no longer exists. */
+let taskClientFilter = createXSelect({
+  mountEl: document.getElementById('taskClientFilterMount'),
+  options: [{value:'', label:'All Clients'}], value:'', onChange: renderTasks
+});
+const taskPriorityFilter = createXSelect({
+  mountEl: document.getElementById('taskPriorityFilterMount'),
+  options: [
+    {value:'', label:'All Priorities'},
+    {value:'Low', label:'Low'}, {value:'Medium', label:'Medium'},
+    {value:'High', label:'High'}, {value:'Very High', label:'Very High'},
+  ], value:'', onChange: renderTasks
+});
+const taskDateFilter = createXSelect({
+  mountEl: document.getElementById('taskDateFilterMount'),
+  options: [
+    {value:'week', label:'This Week'},
+    {value:'month', label:'This Month'},
+    {value:'all', label:'All Time'},
+  ], value:'week', onChange: renderTasks
+});
+
+document.getElementById('taskSearchInput').addEventListener('input', renderTasks);
+document.querySelectorAll('.task-tab').forEach(tab=>{
+  tab.addEventListener('click', ()=>{
+    document.querySelectorAll('.task-tab').forEach(t=>t.classList.remove('active'));
+    tab.classList.add('active');
+    activeTaskTab = tab.dataset.tab;
+    renderTasks();
+  });
+});
+
+function showTasksPage(){
+  currentPage = 'tasks';
+  hideAllTopPages();
+  document.getElementById('tasksPage').style.display = 'block';
+  syncTaskClientFilterOptions();
+  renderTasks();
+  window.scrollTo({top:0, behavior:'instant'});
+}
+
+function syncTaskClientFilterOptions(){
+  const mount = document.getElementById('taskClientFilterMount');
+  mount.innerHTML = '';
+  const opts = [{value:'', label:'All Clients'}].concat(clients.map(c => ({value:String(c.id), label:c.name, dot:clientColor(c.id)})));
+  taskClientFilter = createXSelect({ mountEl: mount, options: opts, value:'', onChange: renderTasks });
+}
+
+function renderTaskRow(t){
+  const client = clientById(t.clientId);
+  const overdue = !t.completed && t.dueDate && daysBetween(t.dueDate) < 0;
+  const dueLabel = t.completed
+    ? ('Completed ' + (t.completedAt ? new Date(t.completedAt).toLocaleDateString(undefined,{month:'short',day:'numeric'}) : ''))
+    : formatDueLabel(t.dueDate);
+  return `
+    <div class="task-row ${overdue?'overdue':''} ${t.completed?'completed-row':''}" data-task-id="${t.id}">
+      <div class="task-row-head">
+        <div class="task-check ${t.completed?'checked':''}" data-task-toggle>
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+        </div>
+        <div class="task-main">
+          <div class="tname ${t.completed?'strike':''}">${t.name}</div>
+          ${t.description ? `<div class="tdesc">${t.description}</div>` : ''}
+        </div>
+      </div>
+      <div class="task-meta">
+        <div class="task-client-chip">
+          ${client ? `<span class="dot" style="background:${clientColor(client.id)}"></span>${client.name}` : '<span class="dot" style="background:#8C8B96"></span>No client'}
+        </div>
+        <div class="task-due ${overdue?'overdue-text':''}">${dueLabel}</div>
+        <div class="task-priority"><span class="priority-dot" style="background:${PRIORITY_DOT[t.priority]||'#8C8B96'}"></span>${t.priority||'—'}</div>
+      </div>
+      <div class="card-menu">
+        <span class="menu-dot" data-task-menu-toggle>⋯</span>
+        <div class="card-menu-panel">
+          <div class="card-menu-item" data-task-edit>Edit</div>
+          <div class="card-menu-item" data-task-view-client>View Client</div>
+          <div class="card-menu-item" data-task-duplicate>Duplicate</div>
+          <div class="card-menu-item danger" data-task-delete>Delete</div>
+        </div>
+      </div>
+    </div>`;
+}
+
+function renderTasks(){
+  const container = document.getElementById('taskSections');
+  const search = document.getElementById('taskSearchInput').value.trim().toLowerCase();
+  const clientVal = taskClientFilter.value;
+  const priorityVal = taskPriorityFilter.value;
+  const dateVal = taskDateFilter.value;
+
+  let filtered = tasks.filter(t =>
+    (!search || t.name.toLowerCase().includes(search) || (t.description||'').toLowerCase().includes(search)) &&
+    (!clientVal || String(t.clientId) === clientVal) &&
+    (!priorityVal || t.priority === priorityVal)
+  );
+
+  if(activeTaskTab === 'completed'){
+    const completed = filtered.filter(t => t.completed).sort((a,b) => (b.completedAt||0) - (a.completedAt||0));
+    container.innerHTML = completed.length
+      ? `<div class="task-section">${completed.map(renderTaskRow).join('')}</div>`
+      : `<div class="task-empty">No completed tasks yet.</div>`;
+    return;
+  }
+
+  const active = filtered.filter(t => !t.completed);
+  const overdue = active.filter(t => t.dueDate && daysBetween(t.dueDate) < 0);
+  const today = active.filter(t => t.dueDate && daysBetween(t.dueDate) === 0);
+
+  let upcomingCap = Infinity;
+  if(dateVal === 'week') upcomingCap = 7;
+  if(dateVal === 'month') upcomingCap = 30;
+  const upcoming = active
+    .filter(t => (!t.dueDate) || daysBetween(t.dueDate) > 0)
+    .filter(t => !t.dueDate || daysBetween(t.dueDate) <= upcomingCap)
+    .sort((a,b) => {
+      if(!a.dueDate) return 1;
+      if(!b.dueDate) return -1;
+      return daysBetween(a.dueDate) - daysBetween(b.dueDate);
+    });
+
+  let html = '';
+  html += `
+    <div class="task-section">
+      <div class="task-section-head overdue">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        <h4>Overdue</h4><span class="count-badge">${overdue.length}</span>
+        <span class="hint">Get these back on track.</span>
+      </div>
+      ${overdue.length ? overdue.map(renderTaskRow).join('') : '<div class="task-empty">No overdue tasks. Nice work.</div>'}
+    </div>
+    <div class="task-section">
+      <div class="task-section-head">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        <h4>Today</h4><span class="count-badge">${today.length}</span>
+        <span class="hint">Due today. Keep it going.</span>
+      </div>
+      ${today.length ? today.map(renderTaskRow).join('') : '<div class="task-empty">Nothing due today.</div>'}
+    </div>
+    <div class="task-section">
+      <div class="task-section-head">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        <h4>Upcoming</h4><span class="count-badge">${upcoming.length}</span>
+        <span class="hint">Coming up next.</span>
+      </div>
+      ${upcoming.length ? upcoming.map(renderTaskRow).join('') : '<div class="task-empty">Nothing else scheduled.</div>'}
+    </div>`;
+  container.innerHTML = html;
+}
+
+/* Event delegation for task rows: toggle complete, menu (Edit/View Client/Duplicate/Delete) */
+document.getElementById('taskSections').addEventListener('click', (e) => {
+  const row = e.target.closest('.task-row');
+  if(!row) return;
+  const id = parseInt(row.dataset.taskId, 10);
+  const task = tasks.find(t => t.id === id);
+  if(!task) return;
+
+  if(e.target.closest('[data-task-toggle]')){
+    task.completed = !task.completed;
+    task.completedAt = task.completed ? Date.now() : null;
+    saveTasks(tasks);
+    renderTasks();
+    showToast(task.completed ? 'Task completed' : 'Task marked active');
+    return;
+  }
+  if(e.target.closest('[data-task-menu-toggle]')){
+    e.stopPropagation();
+    const panel = row.querySelector('.card-menu-panel');
+    const wasOpen = panel.classList.contains('open');
+    document.querySelectorAll('.card-menu-panel.open').forEach(p => p.classList.remove('open'));
+    if(!wasOpen) panel.classList.add('open');
+    return;
+  }
+  if(e.target.closest('[data-task-edit]')){
+    row.querySelector('.card-menu-panel').classList.remove('open');
+    openAddTaskModal(task);
+    return;
+  }
+  if(e.target.closest('[data-task-view-client]')){
+    row.querySelector('.card-menu-panel').classList.remove('open');
+    const client = clientById(task.clientId);
+    if(client) openClientDetailPage(client);
+    else showToast('This task has no linked client', true);
+    return;
+  }
+  if(e.target.closest('[data-task-duplicate]')){
+    row.querySelector('.card-menu-panel').classList.remove('open');
+    const nextId = tasks.length ? Math.max(...tasks.map(t=>t.id))+1 : 1;
+    const copy = Object.assign({}, task, { id: nextId, name: task.name + ' (copy)', completed:false, completedAt:null, createdAt: Date.now() });
+    tasks.unshift(copy);
+    saveTasks(tasks);
+    renderTasks();
+    showToast('Task duplicated');
+    return;
+  }
+  if(e.target.closest('[data-task-delete]')){
+    row.querySelector('.card-menu-panel').classList.remove('open');
+    openConfirm(
+      'Delete this task?',
+      `"${task.name}" will be permanently removed. This cannot be undone.`,
+      () => {
+        tasks = tasks.filter(t => t.id !== task.id);
+        saveTasks(tasks);
+        renderTasks();
+        showToast('Task deleted');
+      }
+    );
+    return;
+  }
+});
+
+/* ---- Add/Edit Task modal ---- */
+const addTaskOverlay = document.getElementById('addTaskOverlay');
+let selectedTaskPriority = 'Medium';
+
+const taskClientFieldSelect_mount = document.getElementById('taskClientFieldMount');
+let taskClientFieldSelect = createXSelect({
+  mountEl: taskClientFieldSelect_mount,
+  options: [{value:'', label:'Select a client...'}],
+  value:'', blockStyle:true, fieldStyle:true
+});
+function syncTaskClientFieldOptions(){
+  taskClientFieldSelect_mount.innerHTML = '';
+  const opts = [{value:'', label:'Select a client...'}].concat(clients.map(c => ({value:String(c.id), label:c.name, dot:clientColor(c.id)})));
+  taskClientFieldSelect = createXSelect({ mountEl: taskClientFieldSelect_mount, options: opts, value:'', blockStyle:true, fieldStyle:true });
+}
+
+function openAddTaskModal(taskToEdit){
+  editingTaskId = taskToEdit ? taskToEdit.id : null;
+  syncTaskClientFieldOptions();
+
+  document.getElementById('taskModalTitle').textContent = taskToEdit ? 'Edit Task' : 'Add Task';
+  document.getElementById('saveTaskBtn').textContent = taskToEdit ? 'Save Changes' : 'Add Task';
+  document.getElementById('t_name').value = taskToEdit?.name || '';
+  taskClientFieldSelect.value = taskToEdit?.clientId ? String(taskToEdit.clientId) : '';
+  document.getElementById('t_due').value = taskToEdit?.dueDate || '';
+  selectedTaskPriority = taskToEdit?.priority || 'Medium';
+  document.querySelectorAll('#taskPrioritySelect .priority-opt').forEach(o => o.classList.toggle('selected', o.dataset.val === selectedTaskPriority));
+  document.getElementById('t_desc').value = taskToEdit?.description || '';
+  document.getElementById('taskDescCount').textContent = (taskToEdit?.description || '').length;
+
+  addTaskOverlay.classList.add('open');
+  setTimeout(()=>document.getElementById('t_name').focus(), 60);
+}
+function closeAddTaskModal(){ addTaskOverlay.classList.remove('open'); }
+
+document.getElementById('addTaskBtn').addEventListener('click', ()=>openAddTaskModal());
+document.getElementById('closeAddTask').addEventListener('click', closeAddTaskModal);
+document.getElementById('cancelAddTask').addEventListener('click', closeAddTaskModal);
+addTaskOverlay.addEventListener('click', e => { if(e.target === addTaskOverlay) closeAddTaskModal(); });
+document.querySelectorAll('#taskPrioritySelect .priority-opt').forEach(opt=>{
+  opt.addEventListener('click', ()=>{
+    document.querySelectorAll('#taskPrioritySelect .priority-opt').forEach(o=>o.classList.remove('selected'));
+    opt.classList.add('selected');
+    selectedTaskPriority = opt.dataset.val;
+  });
+});
+document.getElementById('t_desc').addEventListener('input', function(){
+  document.getElementById('taskDescCount').textContent = this.value.length;
+});
+
+document.getElementById('saveTaskBtn').addEventListener('click', ()=>{
+  const name = document.getElementById('t_name').value.trim();
+  if(!name){ showToast('Task name is required', true); return; }
+
+  const payload = {
+    name,
+    clientId: taskClientFieldSelect.value ? parseInt(taskClientFieldSelect.value, 10) : null,
+    dueDate: document.getElementById('t_due').value || null,
+    priority: selectedTaskPriority,
+    description: document.getElementById('t_desc').value.trim(),
+  };
+
+  if(editingTaskId){
+    const existing = tasks.find(t => t.id === editingTaskId);
+    if(existing) Object.assign(existing, payload);
+    showToast('Task updated');
+  } else {
+    const nextId = tasks.length ? Math.max(...tasks.map(t=>t.id))+1 : 1;
+    tasks.unshift(Object.assign({ id: nextId, completed:false, completedAt:null, createdAt: Date.now() }, payload));
+    showToast('Task added');
+  }
+  saveTasks(tasks);
+  renderTasks();
+  closeAddTaskModal();
+});
+
+/* ===================== Communications ===================== */
+const COMMS_STORAGE_KEY = 'semestraClientflow_comms_v2';
+const COMM_TYPE_META = {
+  Call:    {color:'#4C6EF5', icon:'<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.91.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92z"/></svg>'},
+  Email:   {color:'#A3D65C', icon:'<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>'},
+  Meeting: {color:'#9B7EDE', icon:'<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>'},
+  Message: {color:'#E6A23C', icon:'<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>'},
+};
+const COMM_OUTCOME_META = {
+  'Positive':       {color:'#A3D65C', label:'Positive outcome'},
+  'Neutral':        {color:'#8C8B96', label:'Neutral'},
+  'Needs Attention':{color:'#E23A5D', label:'Needs attention'},
+};
+
+function loadComms(){
+  const raw = localStorage.getItem(COMMS_STORAGE_KEY);
+  if(raw) return JSON.parse(raw);
+  const now = Date.now();
+  const hoursAgo = h => now - h*60*60*1000;
+  const daysAgo = d => now - d*24*60*60*1000;
+  const demo = [
+    {id:1, clientId:1, type:'Call', ts:hoursAgo(2), note:"Spoke with Sarah about the new website timeline. They're happy with the progress and provided feedback on the homepage design.", outcome:'Positive', needsFollowUp:false, taskId:null},
+    {id:2, clientId:5, type:'Email', ts:hoursAgo(5), note:'Sent over the revised proposal with updated pricing. Waiting for their feedback.', outcome:'Neutral', needsFollowUp:false, taskId:null},
+    {id:3, clientId:2, type:'Meeting', ts:daysAgo(1), note:'Productive strategy call with the Nova Build team. Discussed Q2 goals and upcoming projects.', outcome:'Positive', needsFollowUp:false, taskId:null},
+    {id:4, clientId:13, type:'Message', ts:daysAgo(2), note:'Received a message from Omar about a small change request to the mobile layout. Will review and get back to them.', outcome:'Needs Attention', needsFollowUp:true, taskId:null},
+    {id:5, clientId:8, type:'Call', ts:daysAgo(3), note:"Discussed the overdue invoice. They said payment is being processed on their end.", outcome:'Needs Attention', needsFollowUp:true, taskId:null},
+    {id:6, clientId:11, type:'Meeting', ts:daysAgo(4), note:"Quarterly check-in with Silverline. They're happy overall and open to expanding scope.", outcome:'Positive', needsFollowUp:false, taskId:null},
+    {id:7, clientId:6, type:'Email', ts:daysAgo(6), note:'Sent the legal services proposal draft. Still waiting on their internal review.', outcome:'Neutral', needsFollowUp:false, taskId:null},
+    {id:8, clientId:10, type:'Call', ts:daysAgo(7), note:'Initial discovery call. Good fit — moving them to Prospect with a proposal to follow.', outcome:'Positive', needsFollowUp:false, taskId:null},
+    {id:9, clientId:4, type:'Message', ts:daysAgo(9), note:'They asked to pause the project until their Q1 budget is approved.', outcome:'Needs Attention', needsFollowUp:false, taskId:null},
+    {id:10, clientId:15, type:'Email', ts:daysAgo(11), note:'Sent the booking flow walkthrough video. No response yet.', outcome:'Neutral', needsFollowUp:false, taskId:null},
+    {id:11, clientId:7, type:'Call', ts:daysAgo(15), note:"Reviewed the first content batch together. They loved the tone and direction.", outcome:'Positive', needsFollowUp:false, taskId:null},
+    {id:12, clientId:3, type:'Meeting', ts:daysAgo(18), note:'Kickoff for the new marketing campaign. Aligned on timeline and deliverables.', outcome:'Positive', needsFollowUp:false, taskId:null},
+    {id:13, clientId:12, type:'Message', ts:daysAgo(22), note:"Bloom District said their product photos are still a couple weeks out.", outcome:'Neutral', needsFollowUp:true, taskId:null},
+    {id:14, clientId:9, type:'Email', ts:daysAgo(33), note:'Sent final invoice for the completed website project. Confirmed receipt.', outcome:'Positive', needsFollowUp:false, taskId:null},
+    {id:15, clientId:14, type:'Call', ts:daysAgo(48), note:'Wrap-up call for the brand refresh. Client very satisfied with the final result.', outcome:'Positive', needsFollowUp:false, taskId:null},
+    {id:16, clientId:5, type:'Call', ts:daysAgo(29), note:'Discussed the overdue invoice for the financial planning project — they asked for a short extension.', outcome:'Needs Attention', needsFollowUp:true, taskId:null},
+  ];
+  localStorage.setItem(COMMS_STORAGE_KEY, JSON.stringify(demo));
+  return demo;
+}
+function saveComms(list){ localStorage.setItem(COMMS_STORAGE_KEY, JSON.stringify(list)); notifySync(); }
+
+let comms = loadComms();
+let editingCommId = null;
+let selectedCommType = 'Call';
+let selectedCommOutcome = 'Neutral';
+
+function formatCommDateParts(ts){
+  const d = new Date(ts);
+  const now = new Date();
+  const diffDays = Math.round((new Date(now.getFullYear(),now.getMonth(),now.getDate()) - new Date(d.getFullYear(),d.getMonth(),d.getDate())) / 86400000);
+  let dayLabel;
+  if(diffDays === 0) dayLabel = 'Today';
+  else if(diffDays === 1) dayLabel = 'Yesterday';
+  else dayLabel = d.toLocaleDateString(undefined, {month:'short', day:'numeric'});
+  const timeLabel = d.toLocaleTimeString(undefined, {hour:'numeric', minute:'2-digit'});
+  return { dayLabel, timeLabel };
+}
+
+let commClientFilter = createXSelect({
+  mountEl: document.getElementById('commClientFilterMount'),
+  options: [{value:'', label:'All Clients'}], value:'', onChange: renderComms
+});
+const commTypeFilter = createXSelect({
+  mountEl: document.getElementById('commTypeFilterMount'),
+  options: [
+    {value:'', label:'All Types'},
+    {value:'Call', label:'Call'}, {value:'Email', label:'Email'},
+    {value:'Meeting', label:'Meeting'}, {value:'Message', label:'Message'},
+  ], value:'', onChange: renderComms
+});
+document.getElementById('commSearchInput').addEventListener('input', renderComms);
+
+function syncCommClientFilterOptions(){
+  const mount = document.getElementById('commClientFilterMount');
+  mount.innerHTML = '';
+  const opts = [{value:'', label:'All Clients'}].concat(clients.map(c => ({value:String(c.id), label:c.name, dot:clientColor(c.id)})));
+  commClientFilter = createXSelect({ mountEl: mount, options: opts, value:'', onChange: renderComms });
+}
+
+function showCommsPage(){
+  currentPage = 'comms';
+  hideAllTopPages();
+  document.getElementById('commsPage').style.display = 'block';
+  syncCommClientFilterOptions();
+  renderComms();
+  window.scrollTo({top:0, behavior:'instant'});
+}
+
+function renderCommEntry(c){
+  const client = clientById(c.clientId);
+  const { dayLabel, timeLabel } = formatCommDateParts(c.ts);
+  const typeMeta = COMM_TYPE_META[c.type] || COMM_TYPE_META.Call;
+  const outcomeMeta = COMM_OUTCOME_META[c.outcome] || COMM_OUTCOME_META.Neutral;
+
+  let followupHtml = '';
+  if(c.needsFollowUp){
+    followupHtml = c.taskId
+      ? `<div class="comm-followup-row"><span class="comm-task-linked">✓ Task created</span></div>`
+      : `<div class="comm-followup-row">
+           <span class="comm-followup-tag">⚠ Needs Follow-up</span>
+           <button class="btn btn-secondary" style="padding:6px 14px; font-size:12px;" data-comm-create-task>+ Create Task</button>
+         </div>`;
+  }
+
+  return `
+    <div class="comm-entry" data-comm-id="${c.id}">
+      <div class="comm-date-col">${dayLabel}<br>${timeLabel}</div>
+      <div class="comm-icon" style="background:${typeMeta.color}">${typeMeta.icon}</div>
+      <div class="comm-card">
+        <div class="comm-card-top">
+          <div class="client-chip-inline">
+            ${client ? `<span class="dot" style="background:${clientColor(client.id)}"></span>${client.name}` : '<span class="dot" style="background:#8C8B96"></span>No client'}
+          </div>
+          <div class="comm-when">${formatRelativeTime(c.ts)}</div>
+          <div class="comm-outcome"><span class="dot" style="background:${outcomeMeta.color}"></span>${outcomeMeta.label}</div>
+          <div class="card-menu">
+            <span class="menu-dot" data-comm-menu-toggle>⋯</span>
+            <div class="card-menu-panel">
+              <div class="card-menu-item" data-comm-edit>Edit</div>
+              <div class="card-menu-item danger" data-comm-delete>Delete</div>
+            </div>
+          </div>
+        </div>
+        <div class="comm-type-label">${c.type}</div>
+        <div class="comm-note">${c.note || ''}</div>
+        ${followupHtml}
+      </div>
+    </div>`;
+}
+
+function renderComms(){
+  const container = document.getElementById('commTimeline');
+  const search = document.getElementById('commSearchInput').value.trim().toLowerCase();
+  const clientVal = commClientFilter.value;
+  const typeVal = commTypeFilter.value;
+
+  const filtered = comms
+    .filter(c => (!search || (c.note||'').toLowerCase().includes(search)))
+    .filter(c => !clientVal || String(c.clientId) === clientVal)
+    .filter(c => !typeVal || c.type === typeVal)
+    .sort((a,b) => b.ts - a.ts);
+
+  container.innerHTML = filtered.length
+    ? filtered.map(renderCommEntry).join('')
+    : '<div class="task-empty">No communications logged yet.</div>';
+}
+
+document.getElementById('commTimeline').addEventListener('click', (e) => {
+  const entry = e.target.closest('.comm-entry');
+  if(!entry) return;
+  const id = parseInt(entry.dataset.commId, 10);
+  const comm = comms.find(c => c.id === id);
+  if(!comm) return;
+
+  if(e.target.closest('[data-comm-menu-toggle]')){
+    e.stopPropagation();
+    const panel = entry.querySelector('.card-menu-panel');
+    const wasOpen = panel.classList.contains('open');
+    document.querySelectorAll('.card-menu-panel.open').forEach(p => p.classList.remove('open'));
+    if(!wasOpen) panel.classList.add('open');
+    return;
+  }
+  if(e.target.closest('[data-comm-edit]')){
+    entry.querySelector('.card-menu-panel').classList.remove('open');
+    openAddCommModal(comm);
+    return;
+  }
+  if(e.target.closest('[data-comm-delete]')){
+    entry.querySelector('.card-menu-panel').classList.remove('open');
+    openConfirm(
+      'Delete this entry?',
+      'This communication log entry will be permanently removed. This cannot be undone.',
+      () => {
+        comms = comms.filter(c => c.id !== comm.id);
+        saveComms(comms);
+        renderComms();
+        showToast('Entry deleted');
+      }
+    );
+    return;
+  }
+  if(e.target.closest('[data-comm-create-task]')){
+    const client = clientById(comm.clientId);
+    const nextId = tasks.length ? Math.max(...tasks.map(t=>t.id))+1 : 1;
+    const dueDate = new Date(); dueDate.setDate(dueDate.getDate()+3);
+    const newTask = {
+      id: nextId,
+      name: `Follow up with ${client ? client.name : 'client'}`,
+      description: comm.note || '',
+      clientId: comm.clientId,
+      dueDate: dueDate.toISOString().slice(0,10),
+      priority: 'Medium',
+      completed:false, completedAt:null, createdAt: Date.now()
+    };
+    tasks.unshift(newTask);
+    saveTasks(tasks);
+    comm.taskId = newTask.id;
+    saveComms(comms);
+    renderComms();
+    showToast('Task created from this entry');
+    return;
+  }
+});
+
+/* ---- Add/Edit Communication modal ---- */
+const addCommOverlay = document.getElementById('addCommOverlay');
+const commClientFieldMount = document.getElementById('commClientFieldMount');
+let commClientFieldSelect = createXSelect({
+  mountEl: commClientFieldMount,
+  options: [{value:'', label:'Select a client...'}],
+  value:'', blockStyle:true, fieldStyle:true
+});
+function syncCommClientFieldOptions(){
+  commClientFieldMount.innerHTML = '';
+  const opts = [{value:'', label:'Select a client...'}].concat(clients.map(c => ({value:String(c.id), label:c.name, dot:clientColor(c.id)})));
+  commClientFieldSelect = createXSelect({ mountEl: commClientFieldMount, options: opts, value:'', blockStyle:true, fieldStyle:true });
+}
+
+function openAddCommModal(commToEdit, prefillClientId){
+  editingCommId = commToEdit ? commToEdit.id : null;
+  syncCommClientFieldOptions();
+
+  document.getElementById('commModalTitle').textContent = commToEdit ? 'Edit Communication' : 'Log Communication';
+  commClientFieldSelect.value = commToEdit ? String(commToEdit.clientId) : (prefillClientId ? String(prefillClientId) : '');
+
+  selectedCommType = commToEdit?.type || 'Call';
+  document.querySelectorAll('#commTypeSelect .priority-opt').forEach(o => o.classList.toggle('selected', o.dataset.val === selectedCommType));
+
+  const d = commToEdit ? new Date(commToEdit.ts) : new Date();
+  document.getElementById('c_date').value = d.toISOString().slice(0,10);
+  document.getElementById('c_time').value = String(d.getHours()).padStart(2,'0') + ':' + String(d.getMinutes()).padStart(2,'0');
+
+  document.getElementById('c_note').value = commToEdit?.note || '';
+  document.getElementById('commNoteCount').textContent = (commToEdit?.note || '').length;
+
+  selectedCommOutcome = commToEdit?.outcome || 'Neutral';
+  document.querySelectorAll('#commOutcomeSelect .invoice-opt').forEach(o => {
+    const map = {Positive:'paid', Neutral:'pending', 'Needs Attention':'overdue'};
+    o.classList.toggle('selected', o.dataset.val === selectedCommOutcome);
+  });
+
+  const followupOn = !!(commToEdit && commToEdit.needsFollowUp);
+  document.getElementById('commFollowupToggle').classList.toggle('on', followupOn);
+  document.getElementById('commFollowupFields').style.display = followupOn ? 'block' : 'none';
+  document.getElementById('c_taskname').value = '';
+  document.getElementById('c_taskdue').value = '';
+  updateSaveCommLabel();
+
+  addCommOverlay.classList.add('open');
+}
+function closeAddCommModal(){ addCommOverlay.classList.remove('open'); }
+function updateSaveCommLabel(){
+  const on = document.getElementById('commFollowupToggle').classList.contains('on');
+  const isTaskAlreadyLinked = editingCommId && comms.find(c=>c.id===editingCommId)?.taskId;
+  document.getElementById('saveCommBtn').textContent =
+    (on && !isTaskAlreadyLinked) ? 'Log Communication & Create Task' : (editingCommId ? 'Save Changes' : 'Log Communication');
+}
+
+document.getElementById('addCommBtn').addEventListener('click', ()=>openAddCommModal());
+document.getElementById('closeAddComm').addEventListener('click', closeAddCommModal);
+document.getElementById('cancelAddComm').addEventListener('click', closeAddCommModal);
+addCommOverlay.addEventListener('click', e => { if(e.target === addCommOverlay) closeAddCommModal(); });
+
+document.querySelectorAll('#commTypeSelect .priority-opt').forEach(opt=>{
+  opt.addEventListener('click', ()=>{
+    document.querySelectorAll('#commTypeSelect .priority-opt').forEach(o=>o.classList.remove('selected'));
+    opt.classList.add('selected');
+    selectedCommType = opt.dataset.val;
+  });
+});
+document.querySelectorAll('#commOutcomeSelect .invoice-opt').forEach(opt=>{
+  opt.addEventListener('click', ()=>{
+    document.querySelectorAll('#commOutcomeSelect .invoice-opt').forEach(o=>o.classList.remove('selected','paid','pending','overdue'));
+    const map = {Positive:'paid', Neutral:'pending', 'Needs Attention':'overdue'};
+    opt.classList.add('selected', map[opt.dataset.val]);
+    selectedCommOutcome = opt.dataset.val;
+  });
+});
+document.getElementById('c_note').addEventListener('input', function(){
+  document.getElementById('commNoteCount').textContent = this.value.length;
+});
+document.getElementById('commFollowupToggle').addEventListener('click', function(){
+  const nowOn = !this.classList.contains('on');
+  this.classList.toggle('on', nowOn);
+  document.getElementById('commFollowupFields').style.display = nowOn ? 'block' : 'none';
+  updateSaveCommLabel();
+});
+
+document.getElementById('saveCommBtn').addEventListener('click', ()=>{
+  const clientVal = commClientFieldSelect.value;
+  if(!clientVal){ showToast('Please select a client', true); return; }
+
+  const dateVal = document.getElementById('c_date').value;
+  const timeVal = document.getElementById('c_time').value || '00:00';
+  const ts = new Date(`${dateVal}T${timeVal}`).getTime();
+  const followupOn = document.getElementById('commFollowupToggle').classList.contains('on');
+
+  const payload = {
+    clientId: parseInt(clientVal, 10),
+    type: selectedCommType,
+    ts: isNaN(ts) ? Date.now() : ts,
+    note: document.getElementById('c_note').value.trim(),
+    outcome: selectedCommOutcome,
+    needsFollowUp: followupOn,
+  };
+
+  let commRecord;
+  if(editingCommId){
+    commRecord = comms.find(c => c.id === editingCommId);
+    if(commRecord) Object.assign(commRecord, payload);
+  } else {
+    const nextId = comms.length ? Math.max(...comms.map(c=>c.id))+1 : 1;
+    commRecord = Object.assign({ id: nextId, taskId:null }, payload);
+    comms.unshift(commRecord);
+  }
+
+  if(followupOn && commRecord && !commRecord.taskId){
+    const client = clientById(commRecord.clientId);
+    const taskName = document.getElementById('c_taskname').value.trim() || `Follow up with ${client ? client.name : 'client'}`;
+    const taskDue = document.getElementById('c_taskdue').value || null;
+    const nextTaskId = tasks.length ? Math.max(...tasks.map(t=>t.id))+1 : 1;
+    tasks.unshift({
+      id: nextTaskId, name: taskName, description: commRecord.note || '', clientId: commRecord.clientId,
+      dueDate: taskDue, priority:'Medium', completed:false, completedAt:null, createdAt: Date.now()
+    });
+    saveTasks(tasks);
+    commRecord.taskId = nextTaskId;
+    showToast('Communication logged & task created');
+  } else {
+    showToast(editingCommId ? 'Communication updated' : 'Communication logged');
+  }
+
+  saveComms(comms);
+  renderComms();
+  closeAddCommModal();
+});
+
+/* ===================== Financials ===================== */
+const EXPENSES_STORAGE_KEY = 'semestraClientflow_expenses_v2';
+const EXPENSE_CATEGORIES = [
+  {value:'Software / Subscriptions', color:'#9B7EDE'},
+  {value:'Contractor / Outsourcing', color:'#4C6EF5'},
+  {value:'Marketing', color:'#E6A23C'},
+  {value:'Equipment', color:'#A3D65C'},
+  {value:'Taxes & Fees', color:'#E0C24C'},
+  {value:'Other', color:'#8C8B96'},
+];
+function categoryColor(cat){ const f = EXPENSE_CATEGORIES.find(c=>c.value===cat); return f ? f.color : '#8C8B96'; }
+
+function loadExpenses(){
+  const raw = localStorage.getItem(EXPENSES_STORAGE_KEY);
+  if(raw) return JSON.parse(raw);
+  const dateAgo = d => { const dt = new Date(); dt.setDate(dt.getDate()-d); return dt.toISOString().slice(0,10); };
+  const demo = [
+    {id:1, description:'Figma Professional', category:'Software / Subscriptions', amount:15, date:dateAgo(2), recurring:true},
+    {id:2, description:'Notion Team', category:'Software / Subscriptions', amount:20, date:dateAgo(2), recurring:true},
+    {id:3, description:'Zoom Pro', category:'Software / Subscriptions', amount:16, date:dateAgo(4), recurring:true},
+    {id:4, description:'Alex Rivera (Contractor)', category:'Contractor / Outsourcing', amount:2500, date:dateAgo(6), recurring:false},
+    {id:5, description:'Google Ads', category:'Marketing', amount:1200, date:dateAgo(9), recurring:false},
+    {id:6, description:'MacBook Pro', category:'Equipment', amount:2199, date:dateAgo(12), recurring:false},
+    {id:7, description:'Office Supplies', category:'Other', amount:150, date:dateAgo(14), recurring:false},
+    {id:8, description:'Client Dinner', category:'Other', amount:120, date:dateAgo(16), recurring:false},
+    {id:9, description:'Freelance Designer (Contractor)', category:'Contractor / Outsourcing', amount:1800, date:dateAgo(20), recurring:false},
+    {id:10, description:'Quarterly Estimated Tax', category:'Taxes & Fees', amount:3400, date:dateAgo(25), recurring:false},
+    {id:11, description:'Instagram Ads', category:'Marketing', amount:600, date:dateAgo(30), recurring:false},
+    {id:12, description:'Adobe Creative Cloud', category:'Software / Subscriptions', amount:55, date:dateAgo(33), recurring:true},
+    {id:13, description:'Coworking Desk (Monthly)', category:'Other', amount:250, date:dateAgo(35), recurring:true},
+    {id:14, description:'External Illustrator', category:'Contractor / Outsourcing', amount:900, date:dateAgo(48), recurring:false},
+    {id:15, description:'Business Cards & Print', category:'Marketing', amount:180, date:dateAgo(55), recurring:false},
+    {id:16, description:'Monitor Stand', category:'Equipment', amount:89, date:dateAgo(60), recurring:false},
+    {id:17, description:'Accounting Software', category:'Software / Subscriptions', amount:35, date:dateAgo(63), recurring:true},
+    {id:18, description:'LLC Annual Filing Fee', category:'Taxes & Fees', amount:295, date:dateAgo(80), recurring:false},
+  ];
+  localStorage.setItem(EXPENSES_STORAGE_KEY, JSON.stringify(demo));
+  return demo;
+}
+function saveExpenses(list){ localStorage.setItem(EXPENSES_STORAGE_KEY, JSON.stringify(list)); notifySync(); }
+
+let expenses = loadExpenses();
+let editingExpenseId = null;
+
+let expenseCategoryFilter = createXSelect({
+  mountEl: document.getElementById('expenseCategoryFilterMount'),
+  options: [{value:'', label:'All Categories'}].concat(EXPENSE_CATEGORIES.map(c=>({value:c.value, label:c.value, dot:c.color}))),
+  value:'', onChange: renderFinancials
+});
+
+const expenseCategoryFieldMount = document.getElementById('expenseCategoryFieldMount');
+let expenseCategoryFieldSelect = createXSelect({
+  mountEl: expenseCategoryFieldMount,
+  options: [{value:'', label:'Select a category...'}].concat(EXPENSE_CATEGORIES.map(c=>({value:c.value, label:c.value, dot:c.color}))),
+  value:'', blockStyle:true, fieldStyle:true
+});
+
+function showFinancialsPage(){
+  currentPage = 'financials';
+  hideAllTopPages();
+  document.getElementById('financialsPage').style.display = 'block';
+  renderFinancials();
+  window.scrollTo({top:0, behavior:'instant'});
+}
+
+function computeFinancials(){
+  const totalRevenue = clients.reduce((sum,c) => sum + (c.deal||0), 0);
+  const paid = clients.filter(c=>c.invoiceStatus==='Paid').reduce((s,c)=>s+(c.deal||0),0);
+  const pending = clients.filter(c=>c.invoiceStatus==='Pending').reduce((s,c)=>s+(c.deal||0),0);
+  const overdue = clients.filter(c=>c.invoiceStatus==='Overdue').reduce((s,c)=>s+(c.deal||0),0);
+  const totalExpenses = expenses.reduce((s,e)=>s+(e.amount||0),0);
+  const netProfit = totalRevenue - totalExpenses;
+  const margin = totalRevenue > 0 ? Math.round((netProfit/totalRevenue)*100) : 0;
+  return { totalRevenue, paid, pending, overdue, totalExpenses, netProfit, margin };
+}
+
+function renderFinancials(){
+  const f = computeFinancials();
+  document.getElementById('fs_revenue').textContent = '$' + f.totalRevenue.toLocaleString();
+  document.getElementById('fs_paid').textContent = '$' + f.paid.toLocaleString();
+  document.getElementById('fs_pending').textContent = '$' + f.pending.toLocaleString();
+  document.getElementById('fs_overdue').textContent = '$' + f.overdue.toLocaleString();
+  document.getElementById('fs_expenses').textContent = '$' + f.totalExpenses.toLocaleString();
+  document.getElementById('fs_netprofit').textContent = '$' + f.netProfit.toLocaleString();
+  document.getElementById('fs_margin').textContent = f.margin + '% profit margin';
+
+  /* Expense list */
+  const catVal = expenseCategoryFilter.value;
+  const filteredExpenses = expenses
+    .filter(e => !catVal || e.category === catVal)
+    .sort((a,b) => new Date(b.date) - new Date(a.date));
+  const listEl = document.getElementById('expenseList');
+  listEl.innerHTML = filteredExpenses.length ? filteredExpenses.map(e => `
+    <div class="fin-expense-row" data-expense-id="${e.id}">
+      <div class="fin-expense-main">
+        <div class="name">${e.description}</div>
+        <div class="meta">
+          <span class="fin-cat-pill" style="background:${categoryColor(e.category)}">${e.category}</span>
+          ${e.recurring ? '<span class="fin-recurring-icon">↻ Monthly</span>' : ''}
+        </div>
+      </div>
+      <div class="fin-expense-date">${new Date(e.date).toLocaleDateString(undefined,{month:'short',day:'numeric'})}</div>
+      <div class="fin-expense-amount">-$${e.amount.toLocaleString()}</div>
+      <div class="card-menu">
+        <span class="menu-dot" data-expense-menu-toggle>⋯</span>
+        <div class="card-menu-panel">
+          <div class="card-menu-item" data-expense-edit>Edit</div>
+          <div class="card-menu-item danger" data-expense-delete>Delete</div>
+        </div>
+      </div>
+    </div>`).join('') : '<div class="task-empty">No expenses logged yet.</div>';
+
+  /* Category breakdown */
+  const byCat = {};
+  expenses.forEach(e => { byCat[e.category] = (byCat[e.category]||0) + e.amount; });
+  const catEntries = Object.entries(byCat).sort((a,b) => b[1]-a[1]);
+  const maxCat = catEntries.length ? catEntries[0][1] : 1;
+  document.getElementById('categoryBreakdown').innerHTML = catEntries.length ? catEntries.map(([cat, amt]) => `
+    <div class="cat-bar-row">
+      <div class="cat-bar-label">${cat}</div>
+      <div class="cat-bar-track"><div class="cat-bar-fill" style="width:${Math.max(4,(amt/maxCat)*100)}%; background:${categoryColor(cat)}"></div></div>
+      <div class="cat-bar-amount">$${amt.toLocaleString()}</div>
+    </div>`).join('') : '<div class="task-empty">No expenses yet.</div>';
+
+  /* Revenue by client */
+  const sortedClients = [...clients].sort((a,b) => (b.deal||0)-(a.deal||0));
+  document.getElementById('revenueByClient').innerHTML = sortedClients.length ? sortedClients.map(c => `
+    <div class="rev-client-row">
+      <span class="dot" style="background:${clientColor(c.id)}"></span>
+      <span class="cname">${c.name}</span>
+      <span class="cval">$${(c.deal||0).toLocaleString()}</span>
+      <span class="status-pill ${c.invoiceStatus==='Paid'?'status-active':c.invoiceStatus==='Overdue'?'status-overdue':'status-neutral'}">${c.invoiceStatus||'Pending'}</span>
+    </div>`).join('') : '<div class="task-empty">No clients yet.</div>';
+
+  /* Key insight */
+  const insightEl = document.getElementById('finInsight');
+  if(sortedClients.length && f.totalRevenue > 0){
+    const top = sortedClients[0];
+    const topPct = Math.round(((top.deal||0)/f.totalRevenue)*100);
+    const overdueClients = clients.filter(c=>c.invoiceStatus==='Overdue');
+    const overdueAmt = overdueClients.reduce((s,c)=>s+(c.deal||0),0);
+    let msg = `<strong>${top.name}</strong> accounts for ${topPct}% of total revenue.`;
+    if(overdueClients.length){
+      msg += ` Focus on collecting ${overdueClients.length} overdue invoice${overdueClients.length===1?'':'s'} ($${overdueAmt.toLocaleString()}) to improve cash flow.`;
+    } else {
+      msg += ` No overdue invoices right now — cash flow looks healthy.`;
+    }
+    insightEl.innerHTML = `💡 Key Insight<br><span style="color:var(--slate); font-weight:400;">${msg}</span>`;
+  } else {
+    insightEl.innerHTML = '';
+  }
+}
+
+document.getElementById('expenseList').addEventListener('click', (e) => {
+  const row = e.target.closest('.fin-expense-row');
+  if(!row) return;
+  const id = parseInt(row.dataset.expenseId, 10);
+  const expense = expenses.find(x => x.id === id);
+  if(!expense) return;
+
+  if(e.target.closest('[data-expense-menu-toggle]')){
+    e.stopPropagation();
+    const panel = row.querySelector('.card-menu-panel');
+    const wasOpen = panel.classList.contains('open');
+    document.querySelectorAll('.card-menu-panel.open').forEach(p => p.classList.remove('open'));
+    if(!wasOpen) panel.classList.add('open');
+    return;
+  }
+  if(e.target.closest('[data-expense-edit]')){
+    row.querySelector('.card-menu-panel').classList.remove('open');
+    openAddExpenseModal(expense);
+    return;
+  }
+  if(e.target.closest('[data-expense-delete]')){
+    row.querySelector('.card-menu-panel').classList.remove('open');
+    openConfirm(
+      'Delete this expense?',
+      `"${expense.description}" will be permanently removed. This cannot be undone.`,
+      () => {
+        expenses = expenses.filter(x => x.id !== expense.id);
+        saveExpenses(expenses);
+        renderFinancials();
+        showToast('Expense deleted');
+      }
+    );
+    return;
+  }
+});
+
+/* ---- Add/Edit Expense modal ---- */
+const addExpenseOverlay = document.getElementById('addExpenseOverlay');
+
+function openAddExpenseModal(expenseToEdit){
+  editingExpenseId = expenseToEdit ? expenseToEdit.id : null;
+  document.getElementById('expenseModalTitle').textContent = expenseToEdit ? 'Edit Expense' : 'Add Expense';
+  document.getElementById('saveExpenseBtn').textContent = expenseToEdit ? 'Save Changes' : 'Add Expense';
+  document.getElementById('e_desc').value = expenseToEdit?.description || '';
+  expenseCategoryFieldSelect.value = expenseToEdit?.category || '';
+  document.getElementById('e_amount').value = expenseToEdit?.amount || '';
+  document.getElementById('e_date').value = expenseToEdit?.date || todayISO();
+  document.getElementById('expenseRecurringToggle').classList.toggle('on', !!(expenseToEdit && expenseToEdit.recurring));
+  addExpenseOverlay.classList.add('open');
+  setTimeout(()=>document.getElementById('e_desc').focus(), 60);
+}
+function closeAddExpenseModal(){ addExpenseOverlay.classList.remove('open'); }
+
+document.getElementById('addExpenseBtn').addEventListener('click', ()=>openAddExpenseModal());
+document.getElementById('closeAddExpense').addEventListener('click', closeAddExpenseModal);
+document.getElementById('cancelAddExpense').addEventListener('click', closeAddExpenseModal);
+addExpenseOverlay.addEventListener('click', e => { if(e.target === addExpenseOverlay) closeAddExpenseModal(); });
+document.getElementById('expenseRecurringToggle').addEventListener('click', function(){
+  this.classList.toggle('on');
+});
+
+document.getElementById('saveExpenseBtn').addEventListener('click', ()=>{
+  const description = document.getElementById('e_desc').value.trim();
+  if(!description){ showToast('Description is required', true); return; }
+  const payload = {
+    description,
+    category: expenseCategoryFieldSelect.value || 'Other',
+    amount: parseFloat(document.getElementById('e_amount').value) || 0,
+    date: document.getElementById('e_date').value || todayISO(),
+    recurring: document.getElementById('expenseRecurringToggle').classList.contains('on'),
+  };
+  if(editingExpenseId){
+    const existing = expenses.find(x => x.id === editingExpenseId);
+    if(existing) Object.assign(existing, payload);
+    showToast('Expense updated');
+  } else {
+    const nextId = expenses.length ? Math.max(...expenses.map(x=>x.id))+1 : 1;
+    expenses.unshift(Object.assign({ id: nextId }, payload));
+    showToast('Expense added');
+  }
+  saveExpenses(expenses);
+  renderFinancials();
+  closeAddExpenseModal();
+});
+
+/* ===================== Dashboard ===================== */
+const NOTES_STORAGE_KEY = 'semestraClientflow_notes';
+
+function showDashboardPage(){
+  currentPage = 'dashboard';
+  hideAllTopPages();
+  document.getElementById('dashboardPage').style.display = 'block';
+  renderDashboard();
+  window.scrollTo({top:0, behavior:'instant'});
+}
+
+function setGreeting(){
+  const h = new Date().getHours();
+  const part = h < 12 ? 'Good morning' : h < 18 ? 'Good afternoon' : 'Good evening';
+  document.getElementById('dashGreeting').textContent = `${part}, ${firstName(getProfileName())}.`;
+}
+
+function renderAttentionList(){
+  const overdueTasks = tasks.filter(t => !t.completed && t.dueDate && daysBetween(t.dueDate) < 0);
+  const overdueInvoiceClients = clients.filter(c => c.invoiceStatus === 'Overdue');
+  const followupComms = comms.filter(c => c.needsFollowUp && !c.taskId);
+
+  const items = [
+    ...overdueTasks.map(t => ({ kind:'task', id:t.id, clientId:t.clientId, title:t.name, detail:t.description,
+      days: Math.abs(daysBetween(t.dueDate)), dateLabel: new Date(t.dueDate).toLocaleDateString(undefined,{month:'short',day:'numeric'}) })),
+    ...overdueInvoiceClients.map(c => ({ kind:'invoice', id:c.id, clientId:c.id, title:'Invoice overdue', detail:c.project,
+      amount:c.deal })),
+    ...followupComms.map(c => ({ kind:'followup', id:c.id, clientId:c.clientId, title:'Follow up needed', detail:c.note })),
+  ].slice(0, 5);
+
+  document.getElementById('dash_attnCount').textContent = overdueTasks.length + overdueInvoiceClients.length + followupComms.length;
+
+  const listEl = document.getElementById('attentionList');
+  if(!items.length){ listEl.innerHTML = '<div class="task-empty">Nothing needs your attention right now.</div>'; return; }
+
+  listEl.innerHTML = items.map(item => {
+    const client = clientById(item.clientId);
+    const clientDot = client ? `<span class="dot" style="background:${clientColor(client.id)}"></span>${client.name}` : '';
+    let tagClass='task', tagLabel='TASK', whenHtml='', actionLabel='Resolve', actionAttr='data-attn-resolve-task';
+
+    if(item.kind === 'invoice'){
+      tagClass='invoice'; tagLabel='INVOICE';
+      whenHtml = `$${(item.amount||0).toLocaleString()} overdue`;
+      actionLabel='View'; actionAttr='data-attn-view-client';
+    } else if(item.kind === 'followup'){
+      tagClass='followup'; tagLabel='FOLLOW UP';
+      whenHtml = `Needs follow-up`;
+      actionLabel='Resolve'; actionAttr='data-attn-resolve-followup';
+    } else {
+      whenHtml = `${item.days} day${item.days===1?'':'s'} overdue<span class="d">${item.dateLabel}</span>`;
+    }
+
+    return `
+      <div class="attn-row overdue" data-attn-id="${item.id}" data-attn-kind="${item.kind}">
+        <div class="attn-head">
+          <span class="attn-tag ${tagClass}">${tagLabel}</span>
+          <div class="attn-main">
+            <div class="aname">${item.title}</div>
+            <div class="ameta">${clientDot}${item.detail ? ' · ' + item.detail : ''}</div>
+          </div>
+        </div>
+        <div class="attn-actions">
+          <div class="attn-when">${whenHtml}</div>
+          <button class="btn btn-secondary attn-btn" ${actionAttr}>${actionLabel}</button>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+document.getElementById('attentionList').addEventListener('click', (e) => {
+  const row = e.target.closest('.attn-row');
+  if(!row) return;
+  const id = parseInt(row.dataset.attnId, 10);
+  const kind = row.dataset.attnKind;
+
+  if(e.target.closest('[data-attn-resolve-task]')){
+    const task = tasks.find(t => t.id === id);
+    if(task){ task.completed = true; task.completedAt = Date.now(); saveTasks(tasks); renderDashboard(); showToast('Task completed'); }
+    return;
+  }
+  if(e.target.closest('[data-attn-view-client]')){
+    const client = clientById(id);
+    if(client) openClientDetailPage(client);
+    return;
+  }
+  if(e.target.closest('[data-attn-resolve-followup]')){
+    const comm = comms.find(c => c.id === id);
+    if(!comm) return;
+    const client = clientById(comm.clientId);
+    const nextId = tasks.length ? Math.max(...tasks.map(t=>t.id))+1 : 1;
+    const dueDate = new Date(); dueDate.setDate(dueDate.getDate()+3);
+    tasks.unshift({ id: nextId, name:`Follow up with ${client ? client.name : 'client'}`, description:comm.note||'',
+      clientId:comm.clientId, dueDate: dueDate.toISOString().slice(0,10), priority:'Medium', completed:false, completedAt:null, createdAt: Date.now() });
+    saveTasks(tasks);
+    comm.taskId = nextId;
+    saveComms(comms);
+    renderDashboard();
+    showToast('Task created from follow-up');
+    return;
+  }
+});
+
+function renderClientHealth(){
+  const now = Date.now();
+  const stale = clients
+    .map(c => ({ c, daysSince: Math.floor((now - (c.lastContactAt||now)) / 86400000) }))
+    .filter(x => x.daysSince >= 14)
+    .sort((a,b) => b.daysSince - a.daysSince)
+    .slice(0, 5);
+
+  const pane = document.getElementById('dashHealthPane');
+  pane.innerHTML = stale.length ? stale.map(x => `
+    <div class="health-row">
+      <span class="dot" style="background:${clientColor(x.c.id)}"></span>
+      <span class="cname">${x.c.name}</span>
+      <span class="csince" style="color:${x.daysSince>=21?'var(--crimson-text)':'#E6A23C'}">${x.daysSince} days since last contact</span>
+    </div>`).join('') : '<div class="task-empty">All clients contacted recently. Nice work.</div>';
+}
+
+function renderRecentActivity(){
+  const events = [];
+  clients.forEach(c => { if(c.createdAt) events.push({ ts:c.createdAt, text:`Added client ${c.name}`, color:clientColor(c.id) }); });
+  tasks.forEach(t => { if(t.completed && t.completedAt) events.push({ ts:t.completedAt, text:`Completed task: ${t.name}`, color:'#4C6EF5' }); });
+  comms.forEach(c => {
+    const client = clientById(c.clientId);
+    events.push({ ts:c.ts, text:`Logged a ${c.type.toLowerCase()} with ${client ? client.name : 'client'}`, color:(COMM_TYPE_META[c.type]||{}).color||'#8C8B96' });
+  });
+  expenses.forEach(e => { events.push({ ts:new Date(e.date).getTime(), text:`Added expense: ${e.description} ($${e.amount.toLocaleString()})`, color:categoryColor(e.category) }); });
+
+  events.sort((a,b) => b.ts - a.ts);
+  const top = events.slice(0, 6);
+
+  const pane = document.getElementById('dashActivityPane');
+  pane.innerHTML = top.length ? top.map(ev => `
+    <div class="activity-row">
+      <span class="dot" style="background:${ev.color}"></span>
+      <span class="atext">${ev.text}</span>
+      <span class="atime">${formatRelativeTime(ev.ts)}</span>
+    </div>`).join('') : '<div class="task-empty">No activity yet.</div>';
+}
+
+document.querySelectorAll('.dash-tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.dash-tab').forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+    const which = tab.dataset.dashtab;
+    document.getElementById('dashHealthPane').style.display = which === 'health' ? 'block' : 'none';
+    document.getElementById('dashActivityPane').style.display = which === 'activity' ? 'block' : 'none';
+  });
+});
+
+document.getElementById('dashNotes').addEventListener('input', function(){
+  localStorage.setItem(NOTES_STORAGE_KEY, this.value);
+});
+
+document.getElementById('dashAddClient').addEventListener('click', ()=>openAddClientModal());
+document.getElementById('dashAddTask').addEventListener('click', ()=>openAddTaskModal());
+document.getElementById('dashAddComm').addEventListener('click', ()=>openAddCommModal());
+
+const PIPELINE_STATUSES = [
+  {value:'Active', color:'#4C6EF5'},
+  {value:'Prospect', color:'#9B7EDE'},
+  {value:'On Hold', color:'#E6A23C'},
+  {value:'Completed', color:'#8C8B96'},
+];
+
+function renderClientPipeline(){
+  const counts = PIPELINE_STATUSES.map(s => ({ ...s, count: clients.filter(c => c.status === s.value).length }));
+  const total = clients.length || 1;
+
+  document.getElementById('pipelineBar').innerHTML = counts.map(s =>
+    `<span style="width:${(s.count/total)*100}%; background:${s.color};"></span>`
+  ).join('');
+
+  document.getElementById('pipelineLegend').innerHTML = counts.map(s => `
+    <div class="pl-item"><span class="dot" style="background:${s.color}"></span>${s.value}<strong>${s.count}</strong></div>
+  `).join('');
+}
+
+function renderTaskCompletionChart(){
+  const weeks = [];
+  const now = new Date();
+  for(let i = 5; i >= 0; i--){
+    const weekStart = new Date(now); weekStart.setDate(now.getDate() - (i*7) - now.getDay());
+    const weekEnd = new Date(weekStart); weekEnd.setDate(weekStart.getDate() + 6);
+    weeks.push({ start: weekStart, end: weekEnd, label: weekStart.toLocaleDateString(undefined,{month:'short', day:'numeric'}) });
+  }
+
+  const data = weeks.map(w => {
+    const completed = tasks.filter(t => t.completed && t.completedAt && t.completedAt >= w.start.getTime() && t.completedAt <= w.end.getTime()).length;
+    const overdue = tasks.filter(t => !t.completed && t.dueDate && new Date(t.dueDate) >= w.start && new Date(t.dueDate) <= w.end).length;
+    return { ...w, completed, overdue };
+  });
+
+  const maxVal = Math.max(1, ...data.map(d => Math.max(d.completed, d.overdue)));
+  document.getElementById('taskChart').innerHTML = data.map(d => `
+    <div class="chart-col" title="Week of ${d.label} — Completed: ${d.completed}, Overdue: ${d.overdue}">
+      <div class="chart-bars">
+        <div class="chart-bar" style="height:${(d.completed/maxVal)*100}%; background:var(--cobalt);" title="Completed: ${d.completed}"></div>
+        <div class="chart-bar" style="height:${(d.overdue/maxVal)*100}%; background:var(--crimson);" title="Overdue: ${d.overdue}"></div>
+      </div>
+      <div class="chart-col-label">${d.label}</div>
+    </div>`).join('');
+}
+
+document.getElementById('dashViewClients').addEventListener('click', showClientsPage);
+document.getElementById('dashViewTasks').addEventListener('click', showTasksPage);
+
+function renderDashboard(){
+  setGreeting();
+  document.getElementById('dash_totalClients').textContent = clients.length;
+
+  const dueToday = tasks.filter(t => !t.completed && t.dueDate && daysBetween(t.dueDate) === 0).length;
+  document.getElementById('dash_dueToday').textContent = dueToday;
+
+  renderClientPipeline();
+  renderTaskCompletionChart();
+  renderAttentionList();
+  renderClientHealth();
+  renderRecentActivity();
+
+  const savedNotes = localStorage.getItem(NOTES_STORAGE_KEY);
+  if(savedNotes !== null) document.getElementById('dashNotes').value = savedNotes;
+}
+
+/* ===================== Pages menu ===================== */
+const pagesMenuBtn = document.getElementById('pagesMenuBtn');
+const pagesMenuPanel = document.getElementById('pagesMenuPanel');
+function openPagesMenu(){
+  document.querySelectorAll('.pages-menu-item').forEach(item => {
+    item.classList.toggle('active', item.dataset.page === currentPage);
+  });
+  pagesMenuPanel.classList.add('open');
+}
+function closePagesMenu(){ pagesMenuPanel.classList.remove('open'); }
+pagesMenuBtn.addEventListener('click', (e) => {
+  e.stopPropagation();
+  pagesMenuPanel.classList.contains('open') ? closePagesMenu() : openPagesMenu();
+});
+document.querySelectorAll('.pages-menu-item').forEach(item => {
+  item.addEventListener('click', () => {
+    const page = item.dataset.page;
+    closePagesMenu();
+    if(page === 'dashboard') showDashboardPage();
+    else if(page === 'clients') showClientsPage();
+    else if(page === 'tasks') showTasksPage();
+    else if(page === 'comms') showCommsPage();
+    else if(page === 'financials') showFinancialsPage();
+    else if(page === 'settings') showSettingsPage();
+    else if(page === 'guide') showGuidePage();
+  });
+});
+document.addEventListener('click', () => closePagesMenu());
+
+/* ===================== Settings ===================== */
+const PROFILE_NAME_KEY = 'semestraClientflow_profileName';
+
+function getProfileName(){ return localStorage.getItem(PROFILE_NAME_KEY) || 'Jordan Diaz'; }
+function firstName(fullName){ return (fullName || 'Jordan').trim().split(/\s+/)[0]; }
+
+function showSettingsPage(){
+  hideAllTopPages();
+  document.getElementById('settingsPage').style.display = 'block';
+  document.getElementById('settingsName').value = getProfileName();
+  document.getElementById('settingsThemeToggle').classList.toggle('on', document.body.classList.contains('light-theme'));
+  refreshSyncStatusUI();
+  window.scrollTo({top:0, behavior:'instant'});
+}
+
+document.getElementById('settingsSaveName').addEventListener('click', () => {
+  const name = document.getElementById('settingsName').value.trim();
+  if(!name){ showToast('Name cannot be empty', true); return; }
+  localStorage.setItem(PROFILE_NAME_KEY, name);
+  notifySync();
+  showToast('Profile updated');
+});
+
+/* ---- Export / Import / Delete ---- */
+const APP_DATA_KEYS = [STORAGE_KEY, TASKS_STORAGE_KEY, COMMS_STORAGE_KEY, EXPENSES_STORAGE_KEY, PROFILE_NAME_KEY, NOTES_STORAGE_KEY];
+
+document.getElementById('settingsExportBtn').addEventListener('click', () => {
+  const backup = {};
+  APP_DATA_KEYS.forEach(k => { backup[k] = localStorage.getItem(k); });
+  const blob = new Blob([JSON.stringify(backup, null, 2)], {type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `semestra-clientflow-backup-${todayISO()}.json`;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  showToast('Backup downloaded');
+});
+
+document.getElementById('settingsImportBtn').addEventListener('click', () => {
+  document.getElementById('settingsImportFile').click();
+});
+document.getElementById('settingsImportFile').addEventListener('change', (e) => {
+  const file = e.target.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    let parsed;
+    try { parsed = JSON.parse(reader.result); }
+    catch(err){ showToast('That file is not a valid backup', true); return; }
+    openConfirm(
+      'Import this backup?',
+      'This will overwrite your current clients, tasks, communications, and expenses. This cannot be undone.',
+      () => {
+        APP_DATA_KEYS.forEach(k => {
+          if(parsed[k] !== undefined && parsed[k] !== null) localStorage.setItem(k, parsed[k]);
+        });
+        window.refreshAllFromStorage();
+        notifySync();
+        showToast('Backup imported');
+      }
+    );
+  };
+  reader.readAsText(file);
+  e.target.value = '';
+});
+
+document.getElementById('settingsDeleteBtn').addEventListener('click', () => {
+  openConfirm(
+    'Delete all data?',
+    'This permanently erases every client, task, communication, and expense. This cannot be undone.',
+    () => {
+      APP_DATA_KEYS.forEach(k => localStorage.removeItem(k));
+      if(window.SemestraSync && window.SemestraSync.isLinked()) window.SemestraSync.unlink();
+      window.refreshAllFromStorage();
+      showToast('All data deleted');
+    }
+  );
+});
+
+/* ---- Device Sync UI ---- */
+document.querySelectorAll('[data-synctab]').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('[data-synctab]').forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+    const which = tab.dataset.synctab;
+    document.getElementById('syncGeneratePane').style.display = which === 'generate' ? 'block' : 'none';
+    document.getElementById('syncEnterPane').style.display = which === 'enter' ? 'block' : 'none';
+  });
+});
+
+function refreshSyncStatusUI(){
+  const statusEl = document.getElementById('syncStatus');
+  const textEl = document.getElementById('syncStatusText');
+  const unlinkBtn = document.getElementById('unlinkBtn');
+  const linked = window.SemestraSync && window.SemestraSync.isLinked();
+  statusEl.classList.toggle('synced', !!linked);
+  if(linked){
+    textEl.textContent = `Synced — Code: ${window.SemestraSync.getLinkedCode()}`;
+    unlinkBtn.style.display = 'inline-flex';
+    document.getElementById('codeDisplay').style.display = 'flex';
+    document.getElementById('codeDigits').textContent = window.SemestraSync.getLinkedCode();
+    document.getElementById('generateCodeBtn').textContent = 'Regenerate Code';
+  } else {
+    textEl.textContent = 'Not synced to any device';
+    unlinkBtn.style.display = 'none';
+    document.getElementById('codeDisplay').style.display = 'none';
+    document.getElementById('generateCodeBtn').textContent = 'Generate Code';
+  }
+}
+
+document.getElementById('generateCodeBtn').addEventListener('click', async () => {
+  if(!window.SemestraSync){ showToast('Sync is still loading, try again in a moment', true); return; }
+  const btn = document.getElementById('generateCodeBtn');
+  btn.textContent = 'Generating...'; btn.disabled = true;
+  try {
+    const code = await window.SemestraSync.generateAndLink();
+    document.getElementById('codeDisplay').style.display = 'flex';
+    document.getElementById('codeDigits').textContent = code;
+    refreshSyncStatusUI();
+    showToast('Device linked — enter this code on your other device');
+  } catch(err){
+    console.error(err);
+    showToast('Could not generate a code, please try again', true);
+  } finally {
+    btn.disabled = false;
+  }
+});
+
+document.getElementById('copyCodeBtn').addEventListener('click', () => {
+  const code = document.getElementById('codeDigits').textContent;
+  navigator.clipboard?.writeText(code).then(() => showToast('Code copied')).catch(() => showToast('Could not copy code', true));
+});
+
+const codeInputs = Array.from(document.querySelectorAll('.code-input'));
+codeInputs.forEach((input, i) => {
+  input.addEventListener('input', () => {
+    input.value = input.value.replace(/[^0-9]/g, '');
+    if(input.value && i < codeInputs.length - 1) codeInputs[i+1].focus();
+  });
+  input.addEventListener('keydown', (e) => {
+    if(e.key === 'Backspace' && !input.value && i > 0) codeInputs[i-1].focus();
+  });
+});
+
+document.getElementById('connectCodeBtn').addEventListener('click', async () => {
+  const code = codeInputs.map(i => i.value).join('');
+  if(code.length !== 6){ showToast('Enter all 6 digits', true); return; }
+  if(!window.SemestraSync){ showToast('Sync is still loading, try again in a moment', true); return; }
+  const btn = document.getElementById('connectCodeBtn');
+  btn.textContent = 'Connecting...'; btn.disabled = true;
+  try {
+    await window.SemestraSync.connectWithCode(code);
+    refreshSyncStatusUI();
+    showToast('Device connected and synced');
+  } catch(err){
+    console.error(err);
+    showToast('That code was not found', true);
+  } finally {
+    btn.disabled = false; btn.textContent = 'Connect';
+  }
+});
+
+document.getElementById('unlinkBtn').addEventListener('click', () => {
+  openConfirm(
+    'Unlink this device?',
+    'This device will stop syncing. Your local data stays exactly as it is.',
+    () => {
+      window.SemestraSync.unlink();
+      refreshSyncStatusUI();
+      showToast('Device unlinked');
+    }
+  );
+});
+
+document.getElementById('settingsThemeToggle').addEventListener('click', function(){
+  document.getElementById('themeToggle').click();
+  this.classList.toggle('on', document.body.classList.contains('light-theme'));
+});
+
+/* Called by the Firebase sync module whenever remote data lands, and after import/delete */
+window.refreshAllFromStorage = function(){
+  clients = loadClients();
+  tasks = loadTasks();
+  comms = loadComms();
+  expenses = loadExpenses();
+  render();
+  if(typeof renderTasks === 'function') renderTasks();
+  if(typeof renderComms === 'function') renderComms();
+  if(typeof renderFinancials === 'function' && document.getElementById('financialsPage').style.display !== 'none') renderFinancials();
+  if(typeof renderDashboard === 'function' && document.getElementById('dashboardPage').style.display !== 'none') renderDashboard();
+};
+window.addEventListener('semestra-sync-ready', refreshSyncStatusUI);
+
+/* ===================== Guide ===================== */
+const SEEN_GUIDE_KEY = 'semestraClientflow_seenGuide';
+
+function showGuidePage(){
+  hideAllTopPages();
+  document.getElementById('guidePage').style.display = 'block';
+  window.scrollTo({top:0, behavior:'instant'});
+}
+
+document.getElementById('getStartedBtn').addEventListener('click', () => {
+  localStorage.setItem(SEEN_GUIDE_KEY, 'true');
+  showDashboardPage();
+});
+document.getElementById('guideGoSettings').addEventListener('click', () => {
+  showSettingsPage();
+});
+
+/* ===================== Command bar ===================== */
+const cmdkOverlay = document.getElementById('cmdkOverlay');
+function openCmdk(){ cmdkOverlay.classList.add('open'); setTimeout(()=>document.getElementById('cmdkInput').focus(), 50); }
+function closeCmdk(){ cmdkOverlay.classList.remove('open'); }
+document.getElementById('cmdkTrigger').addEventListener('click', openCmdk);
+document.getElementById('fabBtn').addEventListener('click', openCmdk);
+cmdkOverlay.addEventListener('click', e => { if(e.target === cmdkOverlay) closeCmdk(); });
+document.addEventListener('keydown', e => {
+  if((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k'){ e.preventDefault(); openCmdk(); }
+  if(e.key === 'Escape'){ closeCmdk(); closeAddClientModal(); closeConfirm(); closeAddTaskModal(); closeAddCommModal(); closeAddExpenseModal(); closePagesMenu(); }
+});
+document.querySelectorAll('.cmdk-item').forEach(item=>{
+  item.addEventListener('click', ()=>{
+    const action = item.dataset.action;
+    closeCmdk();
+    if(action === 'add-client') openAddClientModal();
+    else if(action === 'add-task') openAddTaskModal();
+    else if(action === 'add-comm') openAddCommModal();
+    else if(action === 'add-expense') openAddExpenseModal();
+    else if(action === 'goto-dashboard') showDashboardPage();
+    else if(action === 'goto-clients') showClientsPage();
+    else if(action === 'goto-tasks') showTasksPage();
+    else if(action === 'goto-comms') showCommsPage();
+    else if(action === 'goto-financials') showFinancialsPage();
+    else if(action === 'goto-settings') showSettingsPage();
+    else if(action === 'goto-guide') showGuidePage();
+  });
+});
+
+/* ===================== Add Client modal ===================== */
+const addClientOverlay = document.getElementById('addClientOverlay');
+let selectedPriority = 'Medium';
+let selectedInvoice = 'Pending';
+let draftClient = {};
+
+const statusFieldSelect = createXSelect({
+  mountEl: document.getElementById('statusFieldMount'),
+  options: [
+    {value:'Prospect', label:'Prospect'},
+    {value:'Active', label:'Active'},
+    {value:'On Hold', label:'On Hold'},
+    {value:'Completed', label:'Completed'},
+  ],
+  value:'Prospect', blockStyle:true, fieldStyle:true
+});
+const paymentFieldSelect = createXSelect({
+  mountEl: document.getElementById('paymentFieldMount'),
+  options: [
+    {value:'', label:'Select payment method'},
+    {value:'Bank Transfer', label:'Bank Transfer'},
+    {value:'PayPal', label:'PayPal'},
+    {value:'Stripe', label:'Stripe'},
+    {value:'Cash', label:'Cash'},
+    {value:'Other', label:'Other'},
+  ],
+  value:'', blockStyle:true, fieldStyle:true
+});
+const sourceFieldSelect = createXSelect({
+  mountEl: document.getElementById('sourceFieldMount'),
+  options: [
+    {value:'', label:'Select lead source'},
+    {value:'Referral', label:'Referral'},
+    {value:'Social Media', label:'Social Media'},
+    {value:'Website', label:'Website'},
+    {value:'Cold Outreach', label:'Cold Outreach'},
+    {value:'Other', label:'Other'},
+  ],
+  value:'', blockStyle:true, fieldStyle:true
+});
+
+let editingClientId = null;
+
+function openAddClientModal(clientToEdit){
+  editingClientId = clientToEdit ? clientToEdit.id : null;
+  draftClient = {};
+
+  document.getElementById('modalTitle').textContent = clientToEdit ? 'Edit Client' : 'Add Client';
+  document.getElementById('quickAddBtn').textContent = clientToEdit ? 'Save without more details' : 'Skip & Add Client';
+  document.getElementById('saveStep2').textContent = clientToEdit ? 'Save Changes' : 'Save Client';
+
+  document.getElementById('f_name').value = clientToEdit?.name || '';
+  document.getElementById('f_contact').value = clientToEdit?.contact || '';
+  document.getElementById('f_email').value = clientToEdit?.email || '';
+  statusFieldSelect.value = clientToEdit?.status || 'Prospect';
+
+  selectedPriority = clientToEdit?.priority || 'Medium';
+  document.querySelectorAll('.priority-opt').forEach(o => o.classList.toggle('selected', o.dataset.val === selectedPriority));
+
+  document.getElementById('f_phone').value = clientToEdit?.phone || '';
+  document.getElementById('f_website').value = clientToEdit?.website || '';
+  document.getElementById('f_industry').value = clientToEdit?.industry || '';
+  document.getElementById('f_project').value = clientToEdit?.project || '';
+  document.getElementById('f_deal').value = clientToEdit?.deal || '';
+  paymentFieldSelect.value = clientToEdit?.payment || '';
+  selectedInvoice = clientToEdit?.invoiceStatus || 'Pending';
+  document.querySelectorAll('.invoice-opt').forEach(o => o.classList.toggle('selected', o.dataset.val === selectedInvoice));
+  sourceFieldSelect.value = clientToEdit?.source || '';
+  document.getElementById('f_start').value = clientToEdit?.startDate || '';
+  document.getElementById('f_notes').value = clientToEdit?.notes || '';
+  document.getElementById('notesCount').textContent = (clientToEdit?.notes || '').length;
+
+  goToStep(1);
+  addClientOverlay.classList.add('open');
+  setTimeout(()=>document.getElementById('f_name').focus(), 60);
+}
+function closeAddClientModal(){ addClientOverlay.classList.remove('open'); }
+
+function goToStep(n){
+  document.getElementById('step1').classList.toggle('active', n===1);
+  document.getElementById('step2').classList.toggle('active', n===2);
+  document.getElementById('dot2').classList.toggle('filled', n===2);
+  document.getElementById('backToStep1').classList.toggle('visible', n===2);
+  document.getElementById('footerStep1').style.display = n===1 ? 'flex' : 'none';
+  document.getElementById('footerStep2').style.display = n===2 ? 'flex' : 'none';
+}
+
+document.getElementById('addClientBtn').addEventListener('click', ()=>openAddClientModal());
+document.getElementById('closeAddClient').addEventListener('click', closeAddClientModal);
+addClientOverlay.addEventListener('click', e => { if(e.target === addClientOverlay) closeAddClientModal(); });
+document.getElementById('backToStep1').addEventListener('click', ()=>goToStep(1));
+
+document.querySelectorAll('.priority-opt').forEach(opt=>{
+  opt.addEventListener('click', ()=>{
+    document.querySelectorAll('.priority-opt').forEach(o=>o.classList.remove('selected'));
+    opt.classList.add('selected');
+    selectedPriority = opt.dataset.val;
+  });
+});
+document.querySelectorAll('.invoice-opt').forEach(opt=>{
+  opt.addEventListener('click', ()=>{
+    document.querySelectorAll('.invoice-opt').forEach(o=>o.classList.remove('selected'));
+    opt.classList.add('selected');
+    selectedInvoice = opt.dataset.val;
+  });
+});
+document.getElementById('f_notes').addEventListener('input', function(){
+  document.getElementById('notesCount').textContent = this.value.length;
+});
+
+/* Creates a new client, OR updates the one being edited (editingClientId).
+   Editing always counts as a real interaction, so lastContactAt refreshes either way. */
+function commitClient(){
+  if(editingClientId){
+    const existing = clients.find(c => c.id === editingClientId);
+    if(existing){
+      Object.assign(existing, draftClient, { lastContactAt: Date.now() });
+      saveClients(clients);
+      render();
+      showToast('Client updated');
+    }
+    return;
+  }
+  const nextId = clients.length ? Math.max(...clients.map(c=>c.id))+1 : 1;
+  const newClient = {
+    id: nextId,
+    name: draftClient.name,
+    contact: draftClient.contact,
+    email: draftClient.email,
+    status: draftClient.status,
+    priority: draftClient.priority,
+    project: draftClient.project || '',
+    deal: draftClient.deal || 0,
+    lastContactAt: Date.now(),
+    createdAt: Date.now(),
+  };
+  clients.unshift(newClient);
+  saveClients(clients);
+  render();
+  showToast('Client added successfully');
+}
+
+function captureStep1(){
+  const name = document.getElementById('f_name').value.trim();
+  if(!name){ showToast('Client name is required', true); return false; }
+  draftClient = {
+    name,
+    contact: document.getElementById('f_contact').value.trim(),
+    email: document.getElementById('f_email').value.trim(),
+    status: statusFieldSelect.value,
+    priority: selectedPriority,
+  };
+  return true;
+}
+
+document.getElementById('quickAddBtn').addEventListener('click', ()=>{
+  if(!captureStep1()) return;
+  commitClient();
+  closeAddClientModal();
+});
+document.getElementById('nextStepBtn').addEventListener('click', ()=>{
+  if(!captureStep1()) return;
+  goToStep(2);
+});
+document.getElementById('skipStep2').addEventListener('click', ()=>{
+  commitClient();
+  closeAddClientModal();
+});
+document.getElementById('saveStep2').addEventListener('click', ()=>{
+  draftClient.phone = document.getElementById('f_phone').value.trim();
+  draftClient.website = document.getElementById('f_website').value.trim();
+  draftClient.industry = document.getElementById('f_industry').value.trim();
+  draftClient.project = document.getElementById('f_project').value.trim();
+  draftClient.deal = parseFloat(document.getElementById('f_deal').value) || 0;
+  draftClient.payment = paymentFieldSelect.value;
+  draftClient.invoiceStatus = selectedInvoice;
+  draftClient.source = sourceFieldSelect.value;
+  draftClient.startDate = document.getElementById('f_start').value;
+  draftClient.notes = document.getElementById('f_notes').value;
+  commitClient();
+  closeAddClientModal();
+});
+
+/* ===================== Shared in-app confirm dialog ===================== */
+const confirmOverlay = document.getElementById('confirmOverlay');
+let confirmCallback = null;
+function openConfirm(title, message, onConfirm){
+  document.getElementById('confirmTitle').textContent = title;
+  document.getElementById('confirmMessage').textContent = message;
+  confirmCallback = onConfirm;
+  confirmOverlay.classList.add('open');
+}
+function closeConfirm(){ confirmOverlay.classList.remove('open'); confirmCallback = null; }
+document.getElementById('confirmCancel').addEventListener('click', closeConfirm);
+document.getElementById('confirmOk').addEventListener('click', ()=>{
+  if(confirmCallback) confirmCallback();
+  closeConfirm();
+});
+confirmOverlay.addEventListener('click', e => { if(e.target === confirmOverlay) closeConfirm(); });
+
+/* ===================== Toast ===================== */
+function showToast(msg, isError){
+  const t = document.getElementById('toast');
+  document.getElementById('toastMsg').textContent = msg;
+  t.classList.toggle('error', !!isError);
+  t.classList.add('show');
+  clearTimeout(t._timer);
+  t._timer = setTimeout(()=>t.classList.remove('show'), 2400);
+}
+
+render();
+if(localStorage.getItem(SEEN_GUIDE_KEY)){
+  showDashboardPage();
+} else {
+  showGuidePage();
+}
+</script>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-app.js";
+  import { getFirestore, doc, setDoc, getDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyCCniduhwjkemWu5aDm6UgutXOePwlQjww",
+    authDomain: "tracker-35ea2.firebaseapp.com",
+    projectId: "tracker-35ea2",
+    storageBucket: "tracker-35ea2.firebasestorage.app",
+    messagingSenderId: "20338944831",
+    appId: "1:20338944831:web:cc04a156f117e79bf8818a"
+  };
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+
+  const LINK_KEY = 'semestraClientflow_syncCode';
+  const SYNC_COLLECTION = 'semestra_clientflow_links';
+  const SYNC_DATA_KEYS = [
+    'semestraClientflow_clients_v2',
+    'semestraClientflow_tasks_v2',
+    'semestraClientflow_comms_v2',
+    'semestraClientflow_expenses_v2',
+    'semestraClientflow_profileName',
+  ];
+
+  let unsubscribe = null;
+  let applyingRemote = false;
+
+  /* Encryption: AES-GCM with a key derived from the 6-digit code itself via PBKDF2.
+     Same model as the existing Semestra device-sync pattern — anyone with the code
+     can decrypt, which is the intended no-account model. */
+  async function deriveKey(code){
+    const enc = new TextEncoder();
+    const keyMaterial = await crypto.subtle.importKey('raw', enc.encode(code), {name:'PBKDF2'}, false, ['deriveKey']);
+    return crypto.subtle.deriveKey(
+      { name:'PBKDF2', salt: enc.encode('semestra-clientflow-fixed-salt'), iterations: 100000, hash:'SHA-256' },
+      keyMaterial, { name:'AES-GCM', length:256 }, false, ['encrypt','decrypt']
+    );
+  }
+  async function encryptPayload(code, obj){
+    const key = await deriveKey(code);
+    const iv = crypto.getRandomValues(new Uint8Array(12));
+    const data = new TextEncoder().encode(JSON.stringify(obj));
+    const cipher = await crypto.subtle.encrypt({name:'AES-GCM', iv}, key, data);
+    return { iv: Array.from(iv), data: Array.from(new Uint8Array(cipher)) };
+  }
+  async function decryptPayload(code, payload){
+    const key = await deriveKey(code);
+    const iv = new Uint8Array(payload.iv);
+    const cipherBytes = new Uint8Array(payload.data);
+    const plain = await crypto.subtle.decrypt({name:'AES-GCM', iv}, key, cipherBytes);
+    return JSON.parse(new TextDecoder().decode(plain));
+  }
+
+  function collectLocalData(){
+    const snapshot = {};
+    SYNC_DATA_KEYS.forEach(k => { snapshot[k] = localStorage.getItem(k); });
+    return snapshot;
+  }
+  function applyRemoteData(snapshot){
+    applyingRemote = true;
+    SYNC_DATA_KEYS.forEach(k => {
+      if(snapshot[k] !== undefined && snapshot[k] !== null) localStorage.setItem(k, snapshot[k]);
+    });
+    applyingRemote = false;
+    if(window.refreshAllFromStorage) window.refreshAllFromStorage();
+  }
+
+  async function generateUnusedCode(){
+    for(let attempt=0; attempt<8; attempt++){
+      const code = String(Math.floor(100000 + Math.random()*900000));
+      const snap = await getDoc(doc(db, SYNC_COLLECTION, code));
+      if(!snap.exists()) return code;
+    }
+    throw new Error('Could not generate a unique code, please try again');
+  }
+
+  function listenForRemoteChanges(code){
+    if(unsubscribe) unsubscribe();
+    unsubscribe = onSnapshot(doc(db, SYNC_COLLECTION, code), async (snap) => {
+      if(!snap.exists() || applyingRemote) return;
+      try {
+        const remote = await decryptPayload(code, snap.data().payload);
+        applyRemoteData(remote);
+      } catch(e){ console.error('Sync decrypt error', e); }
+    });
+  }
+
+  async function generateAndLink(){
+    const code = await generateUnusedCode();
+    const payload = await encryptPayload(code, collectLocalData());
+    await setDoc(doc(db, SYNC_COLLECTION, code), { payload, updatedAt: Date.now() });
+    localStorage.setItem(LINK_KEY, code);
+    listenForRemoteChanges(code);
+    return code;
+  }
+
+  async function connectWithCode(code){
+    const snap = await getDoc(doc(db, SYNC_COLLECTION, code));
+    if(!snap.exists()) throw new Error('That code was not found');
+    const remote = await decryptPayload(code, snap.data().payload);
+    applyRemoteData(remote);
+    localStorage.setItem(LINK_KEY, code);
+    listenForRemoteChanges(code);
+    return true;
+  }
+
+  function unlink(){
+    localStorage.removeItem(LINK_KEY);
+    if(unsubscribe){ unsubscribe(); unsubscribe = null; }
+  }
+
+  let syncTimer = null;
+  function triggerSync(){
+    const code = localStorage.getItem(LINK_KEY);
+    if(!code || applyingRemote) return;
+    clearTimeout(syncTimer);
+    syncTimer = setTimeout(async () => {
+      try {
+        const payload = await encryptPayload(code, collectLocalData());
+        await setDoc(doc(db, SYNC_COLLECTION, code), { payload, updatedAt: Date.now() });
+      } catch(e){ console.error('Sync push error', e); }
+    }, 700);
+  }
+
+  function isLinked(){ return !!localStorage.getItem(LINK_KEY); }
+  function getLinkedCode(){ return localStorage.getItem(LINK_KEY); }
+
+  const existingCode = localStorage.getItem(LINK_KEY);
+  if(existingCode) listenForRemoteChanges(existingCode);
+
+  window.SemestraSync = { generateAndLink, connectWithCode, unlink, triggerSync, isLinked, getLinkedCode };
+  window.dispatchEvent(new Event('semestra-sync-ready'));
+</script>
+
+<script>
+  if('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost')){
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('sw.js').catch(() => {});
+    });
+  }
+</script>
+</body>
+</html>
