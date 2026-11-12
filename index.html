@@ -3237,6 +3237,7 @@ document.getElementById('settingsDeleteBtn').addEventListener('click', () => {
       localStorage.setItem(NOTES_STORAGE_KEY, '');
       const notesEl = document.getElementById('dashNotes');
       if(notesEl) notesEl.value = '';
+      localStorage.setItem('semestraClientflow_seenGuide', 'true');
       window.refreshAllFromStorage();
       showToast('All data deleted');
     }
@@ -3371,6 +3372,7 @@ document.getElementById('getStartedBtn').addEventListener('click', () => {
   showDashboardPage();
 });
 document.getElementById('guideGoSettings').addEventListener('click', () => {
+  localStorage.setItem(SEEN_GUIDE_KEY, 'true');
   showSettingsPage();
 });
 
