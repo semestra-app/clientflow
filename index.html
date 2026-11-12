@@ -1535,7 +1535,7 @@ function createXSelect({ mountEl, options, value, placeholder, blockStyle, field
   function renderLabel(){
     const found = options.find(o => o.value === current);
     if(found && found.dot){
-      labelEl.innerHTML = `<span class="opt-dot" style="background:${found.dot}"></span>${found.label}`;
+      labelEl.innerHTML = `<span class="opt-dot" style="background:${found.dot}"></span>${esc(found.label)}`;
     } else {
       labelEl.textContent = found ? found.label : (placeholder || 'Select...');
     }
@@ -1545,7 +1545,7 @@ function createXSelect({ mountEl, options, value, placeholder, blockStyle, field
     options.forEach(o => {
       const item = document.createElement('div');
       item.className = 'xselect-opt' + (o.value === current ? ' selected' : '');
-      item.innerHTML = o.dot ? `<span class="opt-dot" style="background:${o.dot}"></span>${o.label}` : o.label;
+      item.innerHTML = o.dot ? `<span class="opt-dot" style="background:${o.dot}"></span>${esc(o.label)}` : esc(o.label);
       item.addEventListener('click', (e) => {
         e.stopPropagation();
         current = o.value;
@@ -1599,6 +1599,22 @@ document.getElementById('themeToggle').addEventListener('click', () => {
 });
 
 /* ===================== Data ===================== */
+/* Escapes user text before it is placed inside innerHTML templates. */
+function esc(v){
+  return String(v ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+}
+/* Reads a stored list. Returns null if missing, [] if the stored value is broken. */
+function readList(key){
+  const raw = localStorage.getItem(key);
+  if(raw === null) return null;
+  try {
+    const list = JSON.parse(raw);
+    return Array.isArray(list) ? list : [];
+  } catch(e){
+    console.error('Broken data in', key, e);
+    return [];
+  }
+}
 /* Safely pings the device-sync module (if loaded) whenever local data changes. */
 function notifySync(){
   if(window.SemestraSync) window.SemestraSync.triggerSync();
@@ -1608,9 +1624,8 @@ const STORAGE_KEY = 'semestraClientflow_clients_v2';
 const AVATAR_COLORS = ['#4C6EF5','#A3D65C','#9B7EDE','#E6A23C','#E23A5D','#3FB6A8','#D9648C','#8C8B96'];
 
 function loadClients(){
-  const raw = localStorage.getItem(STORAGE_KEY);
-  if(raw){
-    const list = JSON.parse(raw);
+  const list = readList(STORAGE_KEY);
+  if(list){
     let patched = false;
     list.forEach(c => {
       if(!c.lastContactAt){ c.lastContactAt = Date.now(); patched = true; }
@@ -1730,8 +1745,8 @@ function render(){
         <div class="card-id">
           <div class="card-avatar" style="background:${color}">${initials}</div>
           <div class="names">
-            <h3>${c.name}</h3>
-            <div class="contact">${[c.contact, c.project].filter(Boolean).join(' · ') || '—'}</div>
+            <h3>${esc(c.name)}</h3>
+            <div class="contact">${esc([c.contact, c.project].filter(Boolean).join(' · ')) || '—'}</div>
           </div>
         </div>
         <div class="card-menu">
@@ -1887,8 +1902,7 @@ document.getElementById('dp_deleteBtn').addEventListener('click', ()=>{
     'Delete this client?',
     `"${client.name}" and all of its data will be permanently removed. This cannot be undone.`,
     () => {
-      clients = clients.filter(c => c.id !== client.id);
-      saveClients(clients);
+      removeClientAndData(client.id);
       render();
       closeClientDetailPage();
       showToast('Client deleted');
@@ -1896,13 +1910,23 @@ document.getElementById('dp_deleteBtn').addEventListener('click', ()=>{
   );
 });
 
+/* Deletes a client plus its tasks and communication entries,
+   so a future client that reuses the same id does not inherit them. */
+function removeClientAndData(clientId){
+  clients = clients.filter(c => c.id !== clientId);
+  tasks = tasks.filter(t => t.clientId !== clientId);
+  comms = comms.filter(c => c.clientId !== clientId);
+  saveClients(clients);
+  saveTasks(tasks);
+  saveComms(comms);
+}
+
 function deleteClient(client){
   openConfirm(
     'Delete this client?',
     `"${client.name}" and all of its data will be permanently removed. This cannot be undone.`,
     () => {
-      clients = clients.filter(c => c.id !== client.id);
-      saveClients(clients);
+      removeClientAndData(client.id);
       render();
       showToast('Client deleted');
     }
@@ -1913,8 +1937,8 @@ function deleteClient(client){
 const TASKS_STORAGE_KEY = 'semestraClientflow_tasks_v2';
 
 function loadTasks(){
-  const raw = localStorage.getItem(TASKS_STORAGE_KEY);
-  if(raw) return JSON.parse(raw);
+  const stored = readList(TASKS_STORAGE_KEY);
+  if(stored) return stored;
   const now = Date.now();
   const daysFromNow = d => { const dt = new Date(); dt.setDate(dt.getDate()+d); return dt.toISOString().slice(0,10); };
   const daysAgoTs = d => now - d*24*60*60*1000;
@@ -2065,13 +2089,13 @@ function renderTaskRow(t){
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
         </div>
         <div class="task-main">
-          <div class="tname ${t.completed?'strike':''}">${t.name}</div>
-          ${t.description ? `<div class="tdesc">${t.description}</div>` : ''}
+          <div class="tname ${t.completed?'strike':''}">${esc(t.name)}</div>
+          ${t.description ? `<div class="tdesc">${esc(t.description)}</div>` : ''}
         </div>
       </div>
       <div class="task-meta">
         <div class="task-client-chip">
-          ${client ? `<span class="dot" style="background:${clientColor(client.id)}"></span>${client.name}` : '<span class="dot" style="background:#8C8B96"></span>No client'}
+          ${client ? `<span class="dot" style="background:${clientColor(client.id)}"></span>${esc(client.name)}` : '<span class="dot" style="background:#8C8B96"></span>No client'}
         </div>
         <div class="task-due ${overdue?'overdue-text':''}">${dueLabel}</div>
         <div class="task-priority"><span class="priority-dot" style="background:${PRIORITY_DOT[t.priority]||'#8C8B96'}"></span>${t.priority||'—'}</div>
@@ -2208,6 +2232,9 @@ document.getElementById('taskSections').addEventListener('click', (e) => {
       () => {
         tasks = tasks.filter(t => t.id !== task.id);
         saveTasks(tasks);
+        let unlinked = false;
+        comms.forEach(c => { if(c.taskId === task.id){ c.taskId = null; unlinked = true; } });
+        if(unlinked) saveComms(comms);
         renderTasks();
         showToast('Task deleted');
       }
@@ -2307,8 +2334,8 @@ const COMM_OUTCOME_META = {
 };
 
 function loadComms(){
-  const raw = localStorage.getItem(COMMS_STORAGE_KEY);
-  if(raw) return JSON.parse(raw);
+  const stored = readList(COMMS_STORAGE_KEY);
+  if(stored) return stored;
   const now = Date.now();
   const hoursAgo = h => now - h*60*60*1000;
   const daysAgo = d => now - d*24*60*60*1000;
@@ -2405,7 +2432,7 @@ function renderCommEntry(c){
       <div class="comm-card">
         <div class="comm-card-top">
           <div class="client-chip-inline">
-            ${client ? `<span class="dot" style="background:${clientColor(client.id)}"></span>${client.name}` : '<span class="dot" style="background:#8C8B96"></span>No client'}
+            ${client ? `<span class="dot" style="background:${clientColor(client.id)}"></span>${esc(client.name)}` : '<span class="dot" style="background:#8C8B96"></span>No client'}
           </div>
           <div class="comm-when">${formatRelativeTime(c.ts)}</div>
           <div class="comm-outcome"><span class="dot" style="background:${outcomeMeta.color}"></span>${outcomeMeta.label}</div>
@@ -2418,7 +2445,7 @@ function renderCommEntry(c){
           </div>
         </div>
         <div class="comm-type-label">${c.type}</div>
-        <div class="comm-note">${c.note || ''}</div>
+        <div class="comm-note">${esc(c.note)}</div>
         ${followupHtml}
       </div>
     </div>`;
@@ -2644,8 +2671,8 @@ const EXPENSE_CATEGORIES = [
 function categoryColor(cat){ const f = EXPENSE_CATEGORIES.find(c=>c.value===cat); return f ? f.color : '#8C8B96'; }
 
 function loadExpenses(){
-  const raw = localStorage.getItem(EXPENSES_STORAGE_KEY);
-  if(raw) return JSON.parse(raw);
+  const stored = readList(EXPENSES_STORAGE_KEY);
+  if(stored) return stored;
   const dateAgo = d => { const dt = new Date(); dt.setDate(dt.getDate()-d); return dt.toISOString().slice(0,10); };
   const demo = [
     {id:1, description:'Figma Professional', category:'Software / Subscriptions', amount:15, date:dateAgo(2), recurring:true},
@@ -2726,9 +2753,9 @@ function renderFinancials(){
   listEl.innerHTML = filteredExpenses.length ? filteredExpenses.map(e => `
     <div class="fin-expense-row" data-expense-id="${e.id}">
       <div class="fin-expense-main">
-        <div class="name">${e.description}</div>
+        <div class="name">${esc(e.description)}</div>
         <div class="meta">
-          <span class="fin-cat-pill" style="background:${categoryColor(e.category)}">${e.category}</span>
+          <span class="fin-cat-pill" style="background:${categoryColor(e.category)}">${esc(e.category)}</span>
           ${e.recurring ? '<span class="fin-recurring-icon">↻ Monthly</span>' : ''}
         </div>
       </div>
@@ -2760,7 +2787,7 @@ function renderFinancials(){
   document.getElementById('revenueByClient').innerHTML = sortedClients.length ? sortedClients.map(c => `
     <div class="rev-client-row">
       <span class="dot" style="background:${clientColor(c.id)}"></span>
-      <span class="cname">${c.name}</span>
+      <span class="cname">${esc(c.name)}</span>
       <span class="cval">$${(c.deal||0).toLocaleString()}</span>
       <span class="status-pill ${c.invoiceStatus==='Paid'?'status-active':c.invoiceStatus==='Overdue'?'status-overdue':'status-neutral'}">${c.invoiceStatus||'Pending'}</span>
     </div>`).join('') : '<div class="task-empty">No clients yet.</div>';
@@ -2772,7 +2799,7 @@ function renderFinancials(){
     const topPct = Math.round(((top.deal||0)/f.totalRevenue)*100);
     const overdueClients = clients.filter(c=>c.invoiceStatus==='Overdue');
     const overdueAmt = overdueClients.reduce((s,c)=>s+(c.deal||0),0);
-    let msg = `<strong>${top.name}</strong> accounts for ${topPct}% of total revenue.`;
+    let msg = `<strong>${esc(top.name)}</strong> accounts for ${topPct}% of total revenue.`;
     if(overdueClients.length){
       msg += ` Focus on collecting ${overdueClients.length} overdue invoice${overdueClients.length===1?'':'s'} ($${overdueAmt.toLocaleString()}) to improve cash flow.`;
     } else {
@@ -2906,7 +2933,7 @@ function renderAttentionList(){
 
   listEl.innerHTML = items.map(item => {
     const client = clientById(item.clientId);
-    const clientDot = client ? `<span class="dot" style="background:${clientColor(client.id)}"></span>${client.name}` : '';
+    const clientDot = client ? `<span class="dot" style="background:${clientColor(client.id)}"></span>${esc(client.name)}` : '';
     let tagClass='task', tagLabel='TASK', whenHtml='', actionLabel='Resolve', actionAttr='data-attn-resolve-task';
 
     if(item.kind === 'invoice'){
@@ -2926,8 +2953,8 @@ function renderAttentionList(){
         <div class="attn-head">
           <span class="attn-tag ${tagClass}">${tagLabel}</span>
           <div class="attn-main">
-            <div class="aname">${item.title}</div>
-            <div class="ameta">${clientDot}${item.detail ? ' · ' + item.detail : ''}</div>
+            <div class="aname">${esc(item.title)}</div>
+            <div class="ameta">${clientDot}${item.detail ? ' · ' + esc(item.detail) : ''}</div>
           </div>
         </div>
         <div class="attn-actions">
@@ -3005,7 +3032,7 @@ function renderRecentActivity(){
   pane.innerHTML = top.length ? top.map(ev => `
     <div class="activity-row">
       <span class="dot" style="background:${ev.color}"></span>
-      <span class="atext">${ev.text}</span>
+      <span class="atext">${esc(ev.text)}</span>
       <span class="atime">${formatRelativeTime(ev.ts)}</span>
     </div>`).join('') : '<div class="task-empty">No activity yet.</div>';
 }
@@ -3173,6 +3200,12 @@ document.getElementById('settingsImportFile').addEventListener('change', (e) => 
     let parsed;
     try { parsed = JSON.parse(reader.result); }
     catch(err){ showToast('That file is not a valid backup', true); return; }
+    const listKeys = [STORAGE_KEY, TASKS_STORAGE_KEY, COMMS_STORAGE_KEY, EXPENSES_STORAGE_KEY];
+    const isValidList = v => { try { return Array.isArray(JSON.parse(v)); } catch(e){ return false; } };
+    if(!parsed || typeof parsed !== 'object' || !listKeys.some(k => typeof parsed[k] === 'string')
+       || listKeys.some(k => parsed[k] != null && !(typeof parsed[k] === 'string' && isValidList(parsed[k])))){
+      showToast('That file is not a valid backup', true); return;
+    }
     openConfirm(
       'Import this backup?',
       'This will overwrite your current clients, tasks, communications, and expenses. This cannot be undone.',
@@ -3195,8 +3228,15 @@ document.getElementById('settingsDeleteBtn').addEventListener('click', () => {
     'Delete all data?',
     'This permanently erases every client, task, communication, and expense. This cannot be undone.',
     () => {
-      APP_DATA_KEYS.forEach(k => localStorage.removeItem(k));
       if(window.SemestraSync && window.SemestraSync.isLinked()) window.SemestraSync.unlink();
+      /* Save empty lists instead of removing the keys.
+         Removed keys make loadClients/loadTasks/... re-create the demo data. */
+      [STORAGE_KEY, TASKS_STORAGE_KEY, COMMS_STORAGE_KEY, EXPENSES_STORAGE_KEY]
+        .forEach(k => localStorage.setItem(k, '[]'));
+      localStorage.removeItem(PROFILE_NAME_KEY);
+      localStorage.setItem(NOTES_STORAGE_KEY, '');
+      const notesEl = document.getElementById('dashNotes');
+      if(notesEl) notesEl.value = '';
       window.refreshAllFromStorage();
       showToast('All data deleted');
     }
@@ -3608,6 +3648,8 @@ if(localStorage.getItem(SEEN_GUIDE_KEY)){
 
   let unsubscribe = null;
   let applyingRemote = false;
+  let lastPushedAt = 0;
+  let lastLocalChangeAt = 0;
 
   /* Encryption: AES-GCM with a key derived from the 6-digit code itself via PBKDF2.
      Same model as the existing Semestra device-sync pattern — anyone with the code
@@ -3662,6 +3704,11 @@ if(localStorage.getItem(SEEN_GUIDE_KEY)){
     if(unsubscribe) unsubscribe();
     unsubscribe = onSnapshot(doc(db, SYNC_COLLECTION, code), async (snap) => {
       if(!snap.exists() || applyingRemote) return;
+      /* Ignore our own writes and any remote copy older than a local change
+         (otherwise an old snapshot overwrites a fresh delete). */
+      if(snap.metadata.hasPendingWrites) return;
+      const remoteAt = (snap.data() && snap.data().updatedAt) || 0;
+      if(remoteAt <= lastPushedAt || remoteAt < lastLocalChangeAt) return;
       try {
         const remote = await decryptPayload(code, snap.data().payload);
         applyRemoteData(remote);
@@ -3672,7 +3719,8 @@ if(localStorage.getItem(SEEN_GUIDE_KEY)){
   async function generateAndLink(){
     const code = await generateUnusedCode();
     const payload = await encryptPayload(code, collectLocalData());
-    await setDoc(doc(db, SYNC_COLLECTION, code), { payload, updatedAt: Date.now() });
+    lastPushedAt = Date.now();
+    await setDoc(doc(db, SYNC_COLLECTION, code), { payload, updatedAt: lastPushedAt });
     localStorage.setItem(LINK_KEY, code);
     listenForRemoteChanges(code);
     return code;
@@ -3697,11 +3745,13 @@ if(localStorage.getItem(SEEN_GUIDE_KEY)){
   function triggerSync(){
     const code = localStorage.getItem(LINK_KEY);
     if(!code || applyingRemote) return;
+    lastLocalChangeAt = Date.now();
     clearTimeout(syncTimer);
     syncTimer = setTimeout(async () => {
       try {
         const payload = await encryptPayload(code, collectLocalData());
-        await setDoc(doc(db, SYNC_COLLECTION, code), { payload, updatedAt: Date.now() });
+        lastPushedAt = Date.now();
+        await setDoc(doc(db, SYNC_COLLECTION, code), { payload, updatedAt: lastPushedAt });
       } catch(e){ console.error('Sync push error', e); }
     }, 700);
   }
